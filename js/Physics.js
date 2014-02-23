@@ -118,11 +118,13 @@ var Physics = (function (_super) {
         var tg = collision.tangent(),
             cn = collision.normal,
             masses = left.mass + right.mass,
-            cr = 0.7, // calculer d'après les objets
+            cr = 0.7,// TODO : compute from objects elasticity
             v1 = cn.scale(left.velocity.dot(cn)).length(),
             v2 = cn.scale(right.velocity.dot(cn)).length();
 
-        left.center = left.center.add(collision.normal.scale(collision.penetration));
+        // error correction
+        left.center = left.center.add(cn.scale(collision.penetration / 2));
+        right.center = right.center.sub(cn.scale(collision.penetration / 2));
 
         left.velocity = tg
             .scale(left.velocity.dot(tg))

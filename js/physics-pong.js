@@ -40,10 +40,12 @@ function printActor(actor) {
 
 var physics = new Physics(canvas.width, canvas.height),
     balls = [],
+    random,
     mouseCenter = Vector.NIL;
 
-for (var i = 0 ; i < 10; i++) {
-    balls[i] = physics.createBall(Math.random() * 5 + 10, 100000000, canvas.width * Math.random(), canvas.height * Math.random());
+for (var i = 0 ; i < 100; i++) {
+    random = Math.random() * 1.1;
+    balls[i] = physics.createBall(random + 5, random * 10000000, canvas.width * Math.random(), canvas.height * Math.random());
 }
 
 //ball1.velocity = ball2.center.sub(ball1.center).norm().scale(100);
