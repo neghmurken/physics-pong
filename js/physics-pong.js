@@ -1,7 +1,7 @@
 var canvas = document.createElement('canvas');
 canvas.id = 'pp';
-canvas.width = window.innerWidth - document.body.style.marginLeft - document.body.style.marginRight;
-canvas.height = window.innerHeight - document.body.style.marginTop - document.body.style.marginBottom;
+canvas.width = window.innerWidth - (document.body.style.marginLeft + document.body.style.marginRight);
+canvas.height = window.innerHeight - (document.body.style.marginTop + document.body.style.marginBottom);
 
 var info = document.getElementById('info');
 
@@ -9,23 +9,28 @@ document.body.appendChild(canvas);
 var ctx = canvas.getContext('2d');
 ctx.fillStyle = 'white';
 ctx.strokeStyle = 'white';
-ctx.lineWidth = 2;
+ctx.lineWidth = 1;
 ctx.lineJoin = 'bevel';
+
+function printPolygon(points) {
+    var cur, next, count = points.length;
+
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+
+    for (cur in points) {
+        next = (Number(cur) + 1) % count;
+        ctx.lineTo(points[next].x, points[next].y);
+    }
+
+    ctx.closePath();
+    ctx.stroke();
+}
 
 function printActor(actor) {
     switch(actor.type) {
         case 'box':
-            var bounds = actor.bounds();
-
-            ctx.beginPath();
-            ctx.moveTo(bounds[0].x, bounds[0].y);
-            ctx.lineTo(bounds[1].x, bounds[1].y);
-            ctx.lineTo(bounds[2].x, bounds[2].y);
-            ctx.lineTo(bounds[3].x, bounds[3].y);
-            ctx.lineTo(bounds[0].x, bounds[0].y);
-            ctx.closePath();
-
-            ctx.stroke();
+            printPolygon(actor.bounds());
             break;
             
         case 'ball':
@@ -33,7 +38,7 @@ function printActor(actor) {
             ctx.arc(actor.center.x, actor.center.y, actor.radius, 0, 2 * Math.PI, false);
             ctx.closePath();
 
-            ctx.fill();
+            ctx.stroke();
             break;
     }
 }
