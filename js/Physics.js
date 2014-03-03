@@ -123,8 +123,8 @@ var Physics = (function (_super) {
             v2 = cn.scale(right.velocity.dot(cn)).length();
 
         // error correction
-        left.center = left.center.add(cn.scale(collision.penetration / 2));
-        right.center = right.center.sub(cn.scale(collision.penetration / 2));
+        left.translate(cn.scale(collision.penetration * left.mass / masses));
+        right.translate(cn.scale(collision.penetration * right.mass / masses).inverse());
 
         left.velocity = tg
             .scale(left.velocity.dot(tg))
