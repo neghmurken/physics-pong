@@ -48,13 +48,13 @@ var physics = new Physics(canvas.width, canvas.height),
     random,
     mouseCenter = Vector.NIL;
 
-for (var i = 0 ; i < 100; i++) {
+for (var i = 0 ; i < 2; i++) {
     random = Math.random() * 1.1;
-    balls[i] = physics.createBall(random + 5, random * 10000000, canvas.width * Math.random(), canvas.height * Math.random());
+    balls[i] = physics.createBall(random + 20, 4000, canvas.width * Math.random(), canvas.height * Math.random());
+    balls[i].velocity = (new Vector(canvas.width / 2, canvas.height / 2)).sub(balls[i].center).norm().scale(250);
 }
 
-//ball1.velocity = ball2.center.sub(ball1.center).norm().scale(100);
-//ball2.velocity = ball1.center.sub(ball2.center).norm().scale(100);
+
 
 canvas.addEventListener('mousemove', function (e) {
     mouseCenter = new Vector(e.clientX, e.clientY); 

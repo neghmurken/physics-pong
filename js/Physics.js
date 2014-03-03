@@ -120,11 +120,12 @@ var Physics = (function (_super) {
             masses = left.mass + right.mass,
             cr = 0.7,// TODO : compute from objects elasticity
             v1 = cn.scale(left.velocity.dot(cn)).length(),
-            v2 = cn.scale(right.velocity.dot(cn)).length();
+            v2 = cn.scale(right.velocity.dot(cn)).length(),
+            epsilon = 1;
 
         // error correction
-        left.translate(cn.scale(collision.penetration * left.mass / masses));
-        right.translate(cn.scale(collision.penetration * right.mass / masses).inverse());
+        left.translate(cn.scale(collision.penetration * left.mass / masses).extend(epsilon));
+        right.translate(cn.scale(collision.penetration * right.mass / masses).extend(epsilon).inverse());
 
         left.velocity = tg
             .scale(left.velocity.dot(tg))

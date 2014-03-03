@@ -131,6 +131,15 @@ var Vector = (function (_super) {
     Vector.prototype.mirrorY = function () {
         return new Vector(this.x, -this.y);
     };
+
+    /**
+     *
+     * @param {Number} extension
+     * @returns {Vector}
+     */
+    Vector.prototype.extend = function (extension) {
+        return this.norm().scale(this.length() + extension);
+    };
     
     return Vector;
 })(Object);
