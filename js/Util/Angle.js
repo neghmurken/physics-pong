@@ -50,6 +50,14 @@ var Angle = (function (_super) {
     Angle.prototype.sub = function (delta) {
         return new Angle(this.add(-delta));
     };
+    
+    /**
+     *
+     * @returns {Angle}
+     */
+    Angle.prototype.inverse = function () {
+        return new Angle(-this.t);
+    };
 
     return Angle;
 })(Object);

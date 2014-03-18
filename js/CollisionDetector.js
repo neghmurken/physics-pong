@@ -24,6 +24,9 @@ var CollisionDetector = (function (_super) {
         switch ([left.type, right.type].sort().join('-')) {
             case 'ball-ball':
                 return this.computeBallBallCollision(left, right);
+                
+            case 'ball-box':
+                return this.computeBallBoxCollision(left, right);
 
             default:
                 return null;
@@ -51,6 +54,18 @@ var CollisionDetector = (function (_super) {
             );
         }
 
+        return null;
+    };
+    
+    /**
+     * 
+     * @params {BallActor} left
+     * @params {BoxActor} right
+     * @returns {Collision}
+     */
+    CollisionDetector.prototype.computeBallBoxCollision = function (left, right) {
+        var transposed = left.center.rotate(right.theta.inverse()).sub(right.center);
+        
         return null;
     };
 
