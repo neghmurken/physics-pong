@@ -47,11 +47,12 @@ var physics = new Physics(canvas.width, canvas.height),
     actors = [],
     random,
     mouseCenter = Vector.NIL;
+var l = Math.sqrt(2 * Math.pow(80, 2));
+actors[0] = physics.createBox(l, l, 1, canvas.width * 0.5, canvas.height * 0.5);
+actors[0].rotate(Angle.NORTHEAST);
 
-for (var i = 0 ; i < 20; i++) {
-    actors[i] = physics.createBall(10, 1, (canvas.width / 20) * Math.random() * 20, (canvas.height / 20) * Math.random() * 20);
-    actors[i].velocity = new Vector(Math.random() * 80 - 40, Math.random() * 80 - 40);
-}
+actors[1] = physics.createBox(l, l, 1, canvas.width * 0.5, canvas.height * 0.5 - 200);
+actors[1].velocity = new Vector(0, 60);
 
 canvas.addEventListener('mousemove', function (e) {
     mouseCenter = new Vector(e.clientX, e.clientY);

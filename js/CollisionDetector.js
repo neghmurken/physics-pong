@@ -34,6 +34,9 @@ var CollisionDetector = (function (_super) {
             case 'box-ball':
                 return this.computeBallBoxCollision(right, left);
 
+            case 'box-box':
+                return this.computeBoxBoxCollision(left, right);
+
             default:
                 return null;
         }
@@ -84,7 +87,7 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.computeBallBoxCollision = function (left, right) {
-        var transposed = left.center.rotate(right.theta.inverse()).sub(right.center),
+        var transposed = left.center.rotate(right.theta.inverse(), right.center).sub(right.center),
             closest = new Vector(
                 Math.max(-right.dimension.x / 2, Math.min(right.dimension.x / 2, transposed.x)),
                 Math.max(-right.dimension.y / 2, Math.min(right.dimension.y / 2, transposed.y))
@@ -96,16 +99,27 @@ var CollisionDetector = (function (_super) {
                 id = this.getCollisionId(left, right);
             
             this.collisions.push(id);
-            
+
             return new Collision(
                 id,
                 left,
                 right,
                 closest.sub(distance.norm().scale(penetration / 2)).add(right.center).rotate(right.theta),
-                distance.norm().inverse(),
+                distance.norm().inverse().rotate(right.theta),
                 penetration
             );
         }
+
+        return null;
+    };
+
+    /**
+     *
+     * @param {BoxActor} left
+     * @param {BoxActor} right
+     * @returns {Collision}
+     */
+    CollisionDetector.prototype.computeBoxBoxCollision = function (left, right) {
 
         return null;
     };
