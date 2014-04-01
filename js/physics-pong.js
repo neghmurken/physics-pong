@@ -28,36 +28,33 @@ function printPolygon(points) {
 }
 
 function printActor(actor) {
-    switch(actor.type) {
-        case 'box':
-            printPolygon(actor.bounds());
-            break;
-            
-        case 'ball':
-            ctx.beginPath();
-            ctx.arc(actor.center.x, actor.center.y, actor.radius, 0, 2 * Math.PI, false);
-            ctx.closePath();
+    switch (actor.type) {
+    case 'box':
+        printPolygon(actor.bounds());
+        break;
 
-            ctx.stroke();
-            break;
+    case 'ball':
+        ctx.beginPath();
+        ctx.arc(actor.center.x, actor.center.y, actor.radius, 0, 2 * Math.PI, false);
+        ctx.closePath();
+
+        ctx.stroke();
+        break;
     }
 }
 
 var physics = new Physics(canvas.width, canvas.height),
-    balls = [],
+    actors = [],
     random,
     mouseCenter = Vector.NIL;
 
-for (var i = 0 ; i < 2; i++) {
-    random = Math.random() * 1.1;
-    balls[i] = physics.createBall(random + 20, 4000, canvas.width * Math.random(), canvas.height * Math.random());
-    balls[i].velocity = (new Vector(canvas.width / 2, canvas.height / 2)).sub(balls[i].center).norm().scale(250);
+for (var i = 0 ; i < 20; i++) {
+    actors[i] = physics.createBall(10, 1, (canvas.width / 20) * Math.random() * 20, (canvas.height / 20) * Math.random() * 20);
+    actors[i].velocity = new Vector(Math.random() * 80 - 40, Math.random() * 80 - 40);
 }
 
-
-
 canvas.addEventListener('mousemove', function (e) {
-    mouseCenter = new Vector(e.clientX, e.clientY); 
+    mouseCenter = new Vector(e.clientX, e.clientY);
 });
 
 canvas.addEventListener('mouseenter', function (e) {
@@ -71,14 +68,11 @@ canvas.addEventListener('mouseleave', function (e) {
 var paint = function () {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     window.requestAnimationFrame(paint);
-    
+
     physics.update();
 
-    for (i in balls) {
-        printActor(balls[i]);
+    for (i in actors) {
+        printActor(actors[i]);
     }
 };
 window.requestAnimationFrame(paint);
-
-
-

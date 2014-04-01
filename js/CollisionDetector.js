@@ -21,16 +21,32 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.get = function (left, right) {
-        switch ([left.type, right.type].sort().join('-')) {
+        if (this.collisions.indexOf(this.getCollisionId(left, right)) !== -1) {
+            return null;
+        }
+        
+        switch ([left.type, right.type].join('-')) {
             case 'ball-ball':
                 return this.computeBallBallCollision(left, right);
-                
+
             case 'ball-box':
                 return this.computeBallBoxCollision(left, right);
+            case 'box-ball':
+                return this.computeBallBoxCollision(right, left);
 
             default:
                 return null;
         }
+    };
+    
+    /**
+     *
+     * @param {PointActor} left
+     * @param {PointActor} right
+     * @returns {String}
+     */
+    CollisionDetector.prototype.getCollisionId = function (left, right) {
+        return [left.id, right.id].sort().join('|');
     };
 
     /**
@@ -43,9 +59,13 @@ var CollisionDetector = (function (_super) {
         var distance = left.center.sub(right.center);
 
         if (distance.length() <= left.radius + right.radius) {
-            var penetration = -(distance.length() - left.radius - right.radius);
+            var penetration = left.radius + right.radius - distance.length(),
+                id = this.getCollisionId(left, right);
+
+            this.collisions.push(id);
 
             return new Collision(
+                id,
                 left,
                 right,
                 distance.norm().scale(right.radius - penetration / 2).add(right.center),
@@ -56,7 +76,7 @@ var CollisionDetector = (function (_super) {
 
         return null;
     };
-    
+
     /**
      * 
      * @params {BallActor} left
@@ -64,8 +84,29 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.computeBallBoxCollision = function (left, right) {
-        var transposed = left.center.rotate(right.theta.inverse()).sub(right.center);
+        var transposed = left.center.rotate(right.theta.inverse()).sub(right.center),
+            closest = new Vector(
+                Math.max(-right.dimension.x / 2, Math.min(right.dimension.x / 2, transposed.x)),
+                Math.max(-right.dimension.y / 2, Math.min(right.dimension.y / 2, transposed.y))
+            ),
+            distance = transposed.sub(closest);
         
+        if (distance.length() <= left.radius) {
+            var penetration = left.radius - distance.length(),
+                id = this.getCollisionId(left, right);
+            
+            this.collisions.push(id);
+            
+            return new Collision(
+                id,
+                left,
+                right,
+                closest.sub(distance.norm().scale(penetration / 2)).add(right.center).rotate(right.theta),
+                distance.norm().inverse(),
+                penetration
+            );
+        }
+
         return null;
     };
 

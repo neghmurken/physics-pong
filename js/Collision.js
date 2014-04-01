@@ -12,21 +12,14 @@ var Collision = (function (_super) {
      * @param penetration
      * @constructor
      */
-    function Collision(initiator, target, impact, normal, penetration) {
+    function Collision(id, initiator, target, impact, normal, penetration) {
+        this.id = id;
         this.initiator = initiator;
         this.target = target;
         this.impact = impact;
         this.normal = normal;
         this.penetration = penetration;
     }
-
-    /**
-     *
-     * @returns {string}
-     */
-    Collision.prototype.id = function () {
-        return [this.initiator.id, this.target.id].sort().join('-');
-    };
 
     /**
      *

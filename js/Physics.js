@@ -12,7 +12,7 @@ var Physics = (function (_super) {
         this.collisionDetector = new CollisionDetector();
     }
 
-    Physics.G = 6.673e-3;
+    Physics.G = 6.673e-11;
 
     /**
      *
@@ -38,10 +38,19 @@ var Physics = (function (_super) {
             return;
         }
 
-        var dt = this.getElapsedSeconds();
+        this.collisionDetector.flush();
+        var dt = this.getElapsedSeconds(), i, j;
 
-        for (var i in this.actors) {
+        for (i in this.actors) {
             this.updateActor(this.actors[i], dt);
+        }
+        
+        for (i in this.actors) {
+            for (j in this.actors) {
+                if (this.actors[i] !== this.actors[j]) {
+                    this.checkForCollision(this.actors[i], this.actors[j]);
+                }
+            }
         }
     };
 
@@ -83,14 +92,7 @@ var Physics = (function (_super) {
         }
 
         actor.velocity = actor.velocity.add(resultant.scale(1 / actor.mass).scale(dt));
-
         actor.translate(actor.velocity.add(prevVel).scale(1 / 2).scale(dt));
-
-        for (i in this.actors) {
-            if (this.actors[i] !== actor) {
-                this.checkForCollision(actor, this.actors[i]);
-            }
-        }
     };
 
     /**
@@ -118,7 +120,7 @@ var Physics = (function (_super) {
         var tg = collision.tangent(),
             cn = collision.normal,
             masses = left.mass + right.mass,
-            cr = 0.7,// TODO : compute from objects elasticity
+            cr = 1,// TODO : compute from objects elasticity
             v1 = cn.scale(left.velocity.dot(cn)).length(),
             v2 = cn.scale(right.velocity.dot(cn)).length(),
             epsilon = 1;
@@ -126,14 +128,14 @@ var Physics = (function (_super) {
         // error correction
         left.translate(cn.scale(collision.penetration * left.mass / masses).extend(epsilon));
         right.translate(cn.scale(collision.penetration * right.mass / masses).extend(epsilon).inverse());
-
+        
         left.velocity = tg
             .scale(left.velocity.dot(tg))
             .add(cn.scale((cr * right.mass * (v2 - v1) + left.mass * v1 + right.mass * v2) / masses));
 
-//        right.velocity = tg
-//            .scale(right.velocity.dot(tg))
-//            .add(cn.scale((cr * left.mass * (v1 - v2) + right.mass * v2 + left.mass * v1) / masses));
+        right.velocity = tg
+            .scale(right.velocity.dot(tg))
+            .add(cn.inverse().scale((cr * left.mass * (v1 - v2) + right.mass * v2 + left.mass * v1) / masses));
     };
 
     /**
