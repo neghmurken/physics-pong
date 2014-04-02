@@ -66,10 +66,8 @@ var Physics = (function (_super) {
         for (var i in this.actors) {
             if (this.actors[i] !== actor) {
                 distance = this.actors[i].center.sub(actor.center);
-
-                forceAngle = distance.angle();
-
-                forces.push(forceAngle.toVector(Physics.G * (actor.mass * this.actors[i].mass) / Math.pow(distance.length(), 2)));
+                
+                forces.push(distance.norm().scale(Physics.G * (actor.mass * this.actors[i].mass) / Math.pow(distance.length(), 2)));
             }
         }
 
@@ -123,11 +121,17 @@ var Physics = (function (_super) {
             cr = 1,// TODO : compute from objects elasticity
             v1 = cn.scale(left.velocity.dot(cn)).length(),
             v2 = cn.scale(right.velocity.dot(cn)).length(),
+            // kinetic energy
+            ek1 = 0.5 * left.mass * Math.pow(left.velocity.length(), 2),
+            ek2 = 0.5 * right.mass * Math.pow(right.velocity.length(), 2),
+            ek = ek1 + ek2,
             epsilon = 1;
-
+        
+        //this.stop();
+        
         // error correction
-        left.translate(cn.scale(collision.penetration * left.mass / masses).extend(epsilon));
-        right.translate(cn.scale(collision.penetration * right.mass / masses).extend(epsilon).inverse());
+        left.translate(cn.scale(epsilon + collision.penetration * (ek2 / ek)));
+        right.translate(cn.scale(-(epsilon + collision.penetration) * (ek1 / ek)));
         
         left.velocity = tg
             .scale(left.velocity.dot(tg))

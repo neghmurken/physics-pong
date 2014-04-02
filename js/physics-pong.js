@@ -46,13 +46,14 @@ function printActor(actor) {
 var physics = new Physics(canvas.width, canvas.height),
     actors = [],
     random,
-    mouseCenter = Vector.NIL;
-var l = Math.sqrt(2 * Math.pow(80, 2));
-actors[0] = physics.createBox(l, l, 1, canvas.width * 0.5, canvas.height * 0.5);
+    mouseCenter = Vector.NIL,
+    l = Math.sqrt(2 * Math.pow(80, 2));
+
+actors[0] = physics.createBall(80, 5.972e15, canvas.width * 0.5, canvas.height * 0.5);
 actors[0].rotate(Angle.NORTHEAST);
 
-actors[1] = physics.createBox(l, l, 1, canvas.width * 0.5, canvas.height * 0.5 - 200);
-actors[1].velocity = new Vector(0, 60);
+actors[1] = physics.createBall(20, 5.972e15, canvas.width * 0.5 - 50, canvas.height * 0.5 - 200);
+//actors[1].velocity = new Vector(0, 120);
 
 canvas.addEventListener('mousemove', function (e) {
     mouseCenter = new Vector(e.clientX, e.clientY);
