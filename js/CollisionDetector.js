@@ -72,7 +72,7 @@ var CollisionDetector = (function (_super) {
                 left,
                 right,
                 distance.norm().scale(right.radius - penetration / 2).add(right.center),
-                distance.norm(),
+                distance.norm().inverse(),
                 penetration
             );
         }

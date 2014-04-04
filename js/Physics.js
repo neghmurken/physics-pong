@@ -44,7 +44,7 @@ var Physics = (function (_super) {
         for (i in this.actors) {
             this.updateActor(this.actors[i], dt);
         }
-        
+
         for (i in this.actors) {
             for (j in this.actors) {
                 if (this.actors[i] !== this.actors[j]) {
@@ -66,7 +66,7 @@ var Physics = (function (_super) {
         for (var i in this.actors) {
             if (this.actors[i] !== actor) {
                 distance = this.actors[i].center.sub(actor.center);
-                
+
                 forces.push(distance.norm().scale(Physics.G * (actor.mass * this.actors[i].mass) / Math.pow(distance.length(), 2)));
             }
         }
@@ -82,7 +82,7 @@ var Physics = (function (_super) {
     Physics.prototype.updateActor = function (actor, dt) {
         var forces = this.gatherForces(actor),
             prevVel = actor.velocity,
-            resultant = new Vector(0, 0),
+            resultant = Vector.NIL,
             i;
 
         for (i in forces) {
@@ -118,28 +118,26 @@ var Physics = (function (_super) {
         var tg = collision.tangent(),
             cn = collision.normal,
             masses = left.mass + right.mass,
-            cr = 1,// TODO : compute from objects elasticity
+            cr = 0.5,// TODO : compute from objects elasticity
             v1 = cn.scale(left.velocity.dot(cn)).length(),
             v2 = cn.scale(right.velocity.dot(cn)).length(),
-            // kinetic energy
-            ek1 = 0.5 * left.mass * Math.pow(left.velocity.length(), 2),
-            ek2 = 0.5 * right.mass * Math.pow(right.velocity.length(), 2),
-            ek = ek1 + ek2,
+            vt = left.velocity.length() + right.velocity.length(),
             epsilon = 1;
         
-        //this.stop();
-        
         // error correction
-        left.translate(cn.scale(epsilon + collision.penetration * (ek2 / ek)));
-        right.translate(cn.scale(-(epsilon + collision.penetration) * (ek1 / ek)));
+        // TODO: translate objects along the velocity normal not the collision normal
+        left.translate(cn.scale(collision.penetration * (left.velocity.length() / vt) + epsilon));
+        right.translate(cn.scale(collision.penetration * (right.velocity.length() / vt) - epsilon));
         
         left.velocity = tg
             .scale(left.velocity.dot(tg))
-            .add(cn.scale((cr * right.mass * (v2 - v1) + left.mass * v1 + right.mass * v2) / masses));
+            .add(cn.scale((cr * v1 * (left.mass - right.mass) + 2 * right.mass * v2) / masses));
 
         right.velocity = tg
             .scale(right.velocity.dot(tg))
-            .add(cn.inverse().scale((cr * left.mass * (v1 - v2) + right.mass * v2 + left.mass * v1) / masses));
+            .add(cn.scale((cr * v2 * (right.mass - left.mass) + 2 * left.mass * v1) / masses));
+        
+        window.oncollision(collision);
     };
 
     /**
