@@ -118,17 +118,17 @@ var Physics = (function (_super) {
         var tg = collision.tangent(),
             cn = collision.normal,
             masses = left.mass + right.mass,
-            cr = 0.5,// TODO : compute from objects elasticity
+            cr = 1,// TODO : compute from objects elasticity
             v1 = cn.scale(left.velocity.dot(cn)).length(),
             v2 = cn.scale(right.velocity.dot(cn)).length(),
             vt = left.velocity.length() + right.velocity.length(),
             epsilon = 1;
-        
+
         // error correction
         // TODO: translate objects along the velocity normal not the collision normal
-        left.translate(cn.scale(collision.penetration * (left.velocity.length() / vt) + epsilon));
-        right.translate(cn.scale(collision.penetration * (right.velocity.length() / vt) - epsilon));
-        
+        left.translate(collision.getInitiatorErrorCorrection());
+        right.translate(collision.getTargetErrorCorrection());
+
         left.velocity = tg
             .scale(left.velocity.dot(tg))
             .add(cn.scale((cr * v1 * (left.mass - right.mass) + 2 * right.mass * v2) / masses));
@@ -136,7 +136,7 @@ var Physics = (function (_super) {
         right.velocity = tg
             .scale(right.velocity.dot(tg))
             .add(cn.scale((cr * v2 * (right.mass - left.mass) + 2 * left.mass * v1) / masses));
-        
+
         window.oncollision(collision);
     };
 

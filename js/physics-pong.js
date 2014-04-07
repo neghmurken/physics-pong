@@ -72,6 +72,7 @@ canvas.addEventListener('mouseleave', function (e) {
 
 /* crappy. debug purpose only */
 this.oncollision = function (coll) {
+    console.log(coll);
     ctx.strokeStyle = 'red';
     ctx.beginPath();
     ctx.moveTo(coll.impact.x, coll.impact.y);

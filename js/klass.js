@@ -4,15 +4,15 @@ var extend = function(child, parent) {
             child[key] = parent[key]; 
         }
     };
-    
-    function ctor() { 
+
+    function ctor() {
         this.constructor = child; 
     };
-    
+
     ctor.prototype = parent.prototype; 
-    
+
     child.prototype = new ctor(); 
     child.parent = parent.prototype; 
-    
+
     return child;
 };
