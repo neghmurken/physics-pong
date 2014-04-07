@@ -9,6 +9,7 @@ var Physics = (function (_super) {
         this.actors = [];
         this.running = false;
         this.timestamp = null;
+        this.timeFactor = 1;
         this.collisionDetector = new CollisionDetector();
     }
 
@@ -28,6 +29,13 @@ var Physics = (function (_super) {
     Physics.prototype.stop = function () {
         this.running = false;
         this.timestamp = null;
+    };
+    
+    /**
+     * @param {Number} factor
+     */
+    Physics.prototype.setTimeFactor = function (factor) {
+        this.timeFactor = factor;
     };
 
     /**
@@ -100,7 +108,7 @@ var Physics = (function (_super) {
         var old = this.timestamp;
         this.timestamp = new Date();
 
-        return (this.timestamp - old) / 1000;
+        return (this.timestamp - old) / 1000 * this.timeFactor;
     };
 
     /**
