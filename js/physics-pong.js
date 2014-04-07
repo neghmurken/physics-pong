@@ -18,32 +18,48 @@ function printPolygon(points) {
         next = (Number(cur) + 1) % count;
         ctx.lineTo(points[next].x, points[next].y);
     }
-
+    
     ctx.closePath();
     ctx.stroke();
 }
 
 function printActor(actor) {
-    ctx.fillStyle = 'white';
-    ctx.strokeStyle = 'white';
+    ctx.strokeStyle = '#ddd';
     ctx.lineWidth = 1;
     ctx.lineJoin = 'bevel';
     
     switch (actor.type) {
         case 'box':
             printPolygon(actor.bounds());
+            
+            ctx.beginPath();
+            ctx.moveTo(actor.center.x, actor.center.y);
+            var a = actor.center.add(actor.theta.toVector(actor.dimension.x / 2));
+            ctx.strokeStyle = '407fb5';
+            ctx.lineTo(a.x, a.y);
+            ctx.closePath();
+            ctx.stroke();
+
             break;
 
         case 'ball':
             ctx.beginPath();
             ctx.arc(actor.center.x, actor.center.y, actor.radius, 0, 2 * Math.PI, false);
             ctx.closePath();
-
             ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(actor.center.x, actor.center.y);
+            var a = actor.center.add(actor.theta.toVector(actor.radius));
+            ctx.strokeStyle = '#407fb5';
+            ctx.lineTo(a.x, a.y);
+            ctx.closePath();
+            ctx.stroke();
+
             break;
     }
     
-    ctx.strokeStyle = 'green';
+    ctx.strokeStyle = '#6dc49f';
     ctx.beginPath();
     ctx.moveTo(actor.center.x, actor.center.y);
     var vel = actor.center.add(actor.velocity);
@@ -60,11 +76,10 @@ var physics = new Physics(canvas.width, canvas.height),
 
 actors[0] = physics.createBox(l, l, 80, canvas.width * 0.5, canvas.height * 0.5);
 
-actors[2] = physics.createBall(40, 40, canvas.width * 0.5 + 90, canvas.height * 0.5 + 120);
-actors[2].rotate(Angle.NORTHEAST);
-
 actors[1] = physics.createBall(20, 20, canvas.width * 0.5 - 50, canvas.height * 0.5 - 200);
 actors[1].velocity = new Vector(0, 160);
+
+actors[2] = physics.createBall(40, 40, canvas.width * 0.5 + 90, canvas.height * 0.5 + 120);
 
 canvas.addEventListener('mousemove', function (e) {
     mouseCenter = new Vector(e.clientX, e.clientY);
@@ -81,18 +96,17 @@ canvas.addEventListener('mouseleave', function (e) {
 /* crappy. debug purpose only */
 this.oncollision = function (coll) {
     console.log(coll);
-    ctx.strokeStyle = 'red';
+    ctx.strokeStyle = '#f44646';
     ctx.beginPath();
     ctx.moveTo(coll.impact.x, coll.impact.y);
     var iv = coll.normal.scale(20).add(coll.impact);
     ctx.lineTo(iv.x, iv.y);
-    ctx.arc(iv.x, iv.y, 2, 0, Math.PI * 2, false);
     ctx.closePath();
     ctx.stroke();
 }
 
 var paint = function () {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.37)';
+    ctx.fillStyle = 'rgba(51, 51, 51, 0.37)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     window.requestAnimationFrame(paint);
 
