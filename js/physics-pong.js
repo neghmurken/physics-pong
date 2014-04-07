@@ -42,6 +42,14 @@ function printActor(actor) {
             ctx.stroke();
             break;
     }
+    
+    ctx.strokeStyle = 'green';
+    ctx.beginPath();
+    ctx.moveTo(actor.center.x, actor.center.y);
+    var vel = actor.center.add(actor.velocity);
+    ctx.lineTo(vel.x, vel.y);
+    ctx.closePath();
+    ctx.stroke();
 }
 
 var physics = new Physics(canvas.width, canvas.height),
