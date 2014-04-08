@@ -83,7 +83,7 @@ for (var j = 0 ; j < 4 ; j++) {
     pos = new Vector(canvas.width * 0.5 + 100 + (25 * j), canvas.height * 0.5);
     for (var i = 0 ; i < 20 ; i++) {
         actors[(i + (j * 20)) + 4] = physics.createBall(10, 10, pos.x, pos.y);
-        actors[(i + (j * 20)) + 4].velocity = (new Angle(Math.random() * 2 * Math.PI)).toVector(Math.random() * 20 + 50);
+        actors[(i + (j * 20)) + 4].velocity = (new Angle(Math.PI / 10 * i  + Math.PI / 2)).toVector(50);
         pos = pos.rotate(new Angle(Math.PI / 10), new Vector(canvas.width * 0.5, canvas.height * 0.5));
     }
 }
@@ -102,7 +102,6 @@ canvas.addEventListener('mouseleave', function (e) {
 
 /* crappy. debug purpose only */
 this.oncollision = function (coll) {
-    console.log('plop');
     ctx.strokeStyle = '#f44646';
     ctx.beginPath();
     var iv = coll.normal.scale(20).add(coll.impact),
