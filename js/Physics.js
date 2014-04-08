@@ -127,9 +127,8 @@ var Physics = (function (_super) {
             cn = collision.normal,
             masses = left.mass + right.mass,
             cr = 1,// TODO : compute from objects elasticity
-            v1 = cn.scale(left.velocity.dot(cn)).length(),
-            v2 = cn.scale(right.velocity.dot(cn)).length(),
-            vt = left.velocity.length() + right.velocity.length(),
+            v1 = left.velocity.dot(cn),
+            v2 = right.velocity.dot(cn),
             epsilon = 1;
 
         // error correction

@@ -42,14 +42,18 @@ var Collision = (function (_super) {
      * @returns {Vector}
      */
     Collision.prototype.getInitiatorErrorCorrection = function () {
-        return this.normal.scale(this.penetration * (this.initiator.velocity.length() / this.getTotalVelocityLength()) + Collision.EPSILON)
+        return this.normal.inverse().scale(
+            (this.penetration  + Collision.EPSILON) * (this.initiator.velocity.length() / this.getTotalVelocityLength())
+        );
     }
     
     /**
      * @returns {Vector}
      */
     Collision.prototype.getTargetErrorCorrection = function () {
-        return this.normal.scale(-this.penetration * (this.target.velocity.length() / this.getTotalVelocityLength()) + Collision.EPSILON)
+        return this.normal.scale(
+            (this.penetration  + Collision.EPSILON) * (this.target.velocity.length() / this.getTotalVelocityLength())
+        );
     }
 
     return Collision;

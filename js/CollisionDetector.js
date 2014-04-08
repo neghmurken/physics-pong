@@ -31,8 +31,8 @@ var CollisionDetector = (function (_super) {
 
             case 'ball-box':
                 return this.computeBallBoxCollision(left, right);
-            case 'box-ball':
-                return this.computeBallBoxCollision(right, left);
+//            case 'box-ball':
+//                return this.computeBallBoxCollision(right, left);
 
             case 'box-box':
                 return this.computeBoxBoxCollision(left, right);
@@ -59,7 +59,7 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.computeBallBallCollision = function (left, right) {
-        var distance = left.center.sub(right.center);
+        var distance = right.center.sub(left.center);
 
         if (distance.length() <= left.radius + right.radius) {
             var penetration = left.radius + right.radius - distance.length(),
@@ -71,8 +71,8 @@ var CollisionDetector = (function (_super) {
                 id,
                 left,
                 right,
-                distance.norm().scale(right.radius - penetration / 2).add(right.center),
-                distance.norm().inverse(),
+                distance.norm().scale(left.radius - penetration / 2).add(left.center),
+                distance.norm(),
                 penetration
             );
         }
