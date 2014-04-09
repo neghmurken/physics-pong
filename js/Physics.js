@@ -3,13 +3,24 @@ var Physics = (function (_super) {
 
     extend(Physics, _super);
 
-    function Physics(width, height) {
+    /**
+     * @param {Number} width
+     * @param {Number} height
+     * @constructor
+     */
+    function Physics(width, height, options) {
         this.width = width;
         this.height = height;
+        
         this.actors = [];
         this.running = false;
         this.timestamp = null;
         this.timeFactor = 1;
+        
+        this.options = merge({
+            gravitationalForces: false
+        }, options || {});
+        
         this.collisionDetector = new CollisionDetector();
     }
 
@@ -68,18 +79,21 @@ var Physics = (function (_super) {
      * @returns {Array}
      */
     Physics.prototype.gatherForces = function (actor) {
-        var forces = [], forceAngle, distance;
+        var resultant = Vector.NIL, forceAngle, distance;
 
         // gravitational forces
-        for (var i in this.actors) {
-            if (this.actors[i] !== actor) {
-                distance = this.actors[i].center.sub(actor.center);
+        
+        if (this.options.gravitationalForces) {
+            for (var i in this.actors) {
+                if (this.actors[i] !== actor) {
+                    distance = this.actors[i].center.sub(actor.center);
 
-                forces.push(distance.norm().scale(Physics.G * (actor.mass * this.actors[i].mass) / Math.pow(distance.length(), 2)));
+                    resultant.add(distance.norm().scale(Physics.G * (actor.mass * this.actors[i].mass) / Math.pow(distance.length(), 2)));
+                }
             }
         }
 
-        return forces;
+        return resultant;
     };
 
     /**
@@ -88,16 +102,12 @@ var Physics = (function (_super) {
      * @param {Number} dt Elapsed seconds since previous update
      */
     Physics.prototype.updateActor = function (actor, dt) {
-        var forces = this.gatherForces(actor),
+        var resultant = this.gatherForces(actor),
             prevVel = actor.velocity,
             resultant = Vector.NIL,
             i;
 
-        for (i in forces) {
-            resultant = resultant.add(forces[i]);
-        }
-
-        actor.velocity = actor.velocity.add(resultant.scale(1 / actor.mass).scale(dt));
+         actor.velocity = actor.velocity.add(resultant.scale(1 / actor.mass).scale(dt));
         actor.translate(actor.velocity.add(prevVel).scale(1 / 2).scale(dt));
     };
 

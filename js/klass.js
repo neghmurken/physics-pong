@@ -16,3 +16,17 @@ var extend = function(child, parent) {
 
     return child;
 };
+
+var merge = function () {
+    var output = {};
+    
+    for (var i = 0 ; i < arguments.length ; i++) {
+        for (name in arguments[i]) {
+            if (arguments[i].hasOwnProperty(name)) {
+                output[name] = arguments[i][name];
+            }
+        }
+    }
+    
+    return output;
+}
