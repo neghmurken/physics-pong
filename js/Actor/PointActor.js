@@ -59,13 +59,10 @@ var PointActor = (function (_super) {
 
     /**
      *
-     * @returns {Array}
+     * @returns {AABB}
      */
-    PointActor.prototype.getAABB = function () {
-        return [
-            this.center,
-            Vector.NIL
-        ];
+    PointActor.prototype.aabb = function () {
+        return new AABB(this.center, this.center);
     };
     
     return PointActor;

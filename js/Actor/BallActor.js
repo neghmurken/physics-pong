@@ -1,6 +1,6 @@
 var BallActor = (function (_super) {
     "use strict";
-    
+
     extend(BallActor, _super);
 
     function BallActor(x, y, r, m) {
@@ -22,7 +22,7 @@ var BallActor = (function (_super) {
      *
      * @returns {Array}
      */
-    BallActor.prototype.getAABB = function () {
+    BallActor.prototype.aabb = function () {
         var radiusVector = new Vector(this.radius, this.radius);
 
         return [

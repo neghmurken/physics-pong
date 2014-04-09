@@ -39,18 +39,18 @@ var BoxActor = (function (_super) {
      *
      * @returns {Array}
      */
-    BoxActor.prototype.getAABB = function () {
-        var xs = [], ys = [], bounds = this.bounds(), center;
+    BoxActor.prototype.aabb = function () {
+        var xs = [], ys = [], bounds = this.bounds();
 
         for (var i in bounds) {
             xs.push(bounds[i].x);
             ys.push(bounds[i].y);
         }
 
-        return [
-            center = new Vector(Math.min.apply(null, xs), Math.min.apply(null, ys)),
-            (new Vector(Math.max.apply(null, xs), Math.max.apply(null, ys))).sub(center)
-        ];
+        return new AABB(
+            new Vector(Math.min.apply(null, xs), Math.min.apply(null, ys)),
+            new Vector(Math.max.apply(null, xs), Math.max.apply(null, ys))
+        );
     };
 
     return BoxActor;
