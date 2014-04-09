@@ -14,14 +14,22 @@ var Collision = (function (_super) {
      * @param penetration
      * @constructor
      */
-    function Collision(id, initiator, target, impact, normal, penetration) {
-        this.id = id;
+    function Collision(initiator, target, impact, normal, penetration) {
+        this.id = null;
         this.initiator = initiator;
         this.target = target;
         this.impact = impact;
         this.normal = normal;
         this.penetration = penetration;
     }
+    
+    /**
+     *
+     * @param {String}
+     */
+    Collision.prototype.setId = function (id) {
+        this.id = id;
+    };
 
     /**
      *

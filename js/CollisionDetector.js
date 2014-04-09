@@ -21,25 +21,38 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.get = function (left, right) {
-        if (this.collisions.indexOf(this.getCollisionId(left, right)) !== -1) {
-            return null;
+        var id = this.getCollisionId(left, right), 
+            collision = null;
+
+        if (this.collisions.indexOf(id) === -1) {
+
+//            if (left.aabb().intersect(right.aabb())) {
+                switch ([left.type, right.type].join('-')) {
+                    case 'ball-ball':
+                        collision = this.computeBallBallCollision(left, right);
+                        break;
+
+                    case 'ball-box':
+                        collision = this.computeBallBoxCollision(left, right);
+                        break;
+
+                    case 'box-box':
+                        collision = this.computeBoxBoxCollision(left, right);
+                        break;
+
+                    default:
+                        collision = null;
+                        break;
+                }
+
+                if (collision) {
+                    this.collisions.push(id);
+                    collision.setId(id);
+                }
+//            }
         }
-        
-        switch ([left.type, right.type].join('-')) {
-            case 'ball-ball':
-                return this.computeBallBallCollision(left, right);
 
-            case 'ball-box':
-                return this.computeBallBoxCollision(left, right);
-//            case 'box-ball':
-//                return this.computeBallBoxCollision(right, left);
-
-            case 'box-box':
-                return this.computeBoxBoxCollision(left, right);
-
-            default:
-                return null;
-        }
+        return collision;
     };
     
     /**
@@ -62,13 +75,9 @@ var CollisionDetector = (function (_super) {
         var distance = right.center.sub(left.center);
 
         if (distance.length() <= left.radius + right.radius) {
-            var penetration = left.radius + right.radius - distance.length(),
-                id = this.getCollisionId(left, right);
-
-            this.collisions.push(id);
+            var penetration = left.radius + right.radius - distance.length();
 
             return new Collision(
-                id,
                 left,
                 right,
                 distance.norm().scale(left.radius - penetration / 2).add(left.center),
@@ -95,13 +104,9 @@ var CollisionDetector = (function (_super) {
             distance = transposed.sub(closest);
         
         if (distance.length() <= left.radius) {
-            var penetration = left.radius - distance.length(),
-                id = this.getCollisionId(left, right);
+            var penetration = left.radius - distance.length();
             
-            this.collisions.push(id);
-
             return new Collision(
-                id,
                 left,
                 right,
                 closest.sub(distance.norm().scale(penetration / 2)).add(right.center).rotate(right.theta),

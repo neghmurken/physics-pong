@@ -25,10 +25,10 @@ var BallActor = (function (_super) {
     BallActor.prototype.aabb = function () {
         var radiusVector = new Vector(this.radius, this.radius);
 
-        return [
+        return new AABB(
             this.center.sub(radiusVector),
             this.center.add(radiusVector)
-        ]
+        );
     };
     
     return BallActor;
