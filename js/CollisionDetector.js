@@ -26,7 +26,7 @@ var CollisionDetector = (function (_super) {
 
         if (this.collisions.indexOf(id) === -1) {
 
-//            if (left.aabb().intersect(right.aabb())) {
+            if (left.aabb.intersect(right.aabb)) {
                 switch ([left.type, right.type].join('-')) {
                     case 'ball-ball':
                         collision = this.computeBallBallCollision(left, right);
@@ -35,6 +35,10 @@ var CollisionDetector = (function (_super) {
                     case 'ball-box':
                         collision = this.computeBallBoxCollision(left, right);
                         break;
+                        
+//                    case 'box-ball':
+//                        collision = this.computeBallBoxCollision(right, left);
+//                        break;
 
                     case 'box-box':
                         collision = this.computeBoxBoxCollision(left, right);
@@ -49,7 +53,7 @@ var CollisionDetector = (function (_super) {
                     this.collisions.push(id);
                     collision.setId(id);
                 }
-//            }
+            }
         }
 
         return collision;
@@ -134,6 +138,8 @@ var CollisionDetector = (function (_super) {
                 minksum.push(leftBounds[a].sub(rightBounds[b]));
             }
         }
+        
+        
 
         return null;
     };

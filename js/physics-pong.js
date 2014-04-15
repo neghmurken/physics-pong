@@ -35,7 +35,7 @@ function printActor(actor) {
             ctx.beginPath();
             ctx.moveTo(actor.center.x, canvas.height - actor.center.y);
             var a = actor.center.add(actor.theta.toVector(actor.dimension.x / 2));
-            ctx.strokeStyle = '407fb5';
+            ctx.strokeStyle = '#407fb5';
             ctx.lineTo(a.x, canvas.height - a.y);
             ctx.closePath();
             ctx.stroke();
@@ -59,6 +59,19 @@ function printActor(actor) {
             break;
     }
     
+    // display aabb
+//    var aabb = actor.aabb;
+//    ctx.strokeStyle = '#4d4d2c';
+//    ctx.beginPath();
+//    ctx.moveTo(aabb.sw.x, canvas.height - aabb.sw.y);
+//    ctx.lineTo(aabb.ne.x, canvas.height - aabb.sw.y);
+//    ctx.lineTo(aabb.ne.x, canvas.height - aabb.ne.y);
+//    ctx.lineTo(aabb.sw.x, canvas.height - aabb.ne.y);
+//    ctx.lineTo(aabb.sw.x, canvas.height - aabb.sw.y);
+//    ctx.closePath();
+//    ctx.stroke();
+    
+    // display velocity
     ctx.strokeStyle = '#294a3c';
     ctx.beginPath();
     ctx.moveTo(actor.center.x, canvas.height - actor.center.y);
@@ -75,9 +88,13 @@ var physics = new Physics(canvas.width, canvas.height),
     mouseCenter = Vector.NIL;
 
 actors[0] = physics.createBox(400, 10, 1e10, canvas.width * 0.5, canvas.height * 0.5 + 200);
+actors[0].rotate(new Angle(Math.PI / 4), new Vector(canvas.width * 0.5, canvas.height * 0.5));
 actors[1] = physics.createBox(10, 400, 1e10, canvas.width * 0.5 + 200, canvas.height * 0.5);
+actors[1].rotate(new Angle(Math.PI / 4), new Vector(canvas.width * 0.5, canvas.height * 0.5));
 actors[2] = physics.createBox(400, 10, 1e10, canvas.width * 0.5, canvas.height * 0.5 - 200);
+actors[2].rotate(new Angle(Math.PI / 4), new Vector(canvas.width * 0.5, canvas.height * 0.5));
 actors[3] = physics.createBox(10, 400, 1e10, canvas.width * 0.5 - 200, canvas.height * 0.5);
+actors[3].rotate(new Angle(Math.PI / 4), new Vector(canvas.width * 0.5, canvas.height * 0.5));
 
 for (var j = 0 ; j < 4 ; j++) {
     pos = new Vector(canvas.width * 0.5 + 100 + (25 * j), canvas.height * 0.5);
@@ -87,6 +104,8 @@ for (var j = 0 ; j < 4 ; j++) {
         pos = pos.rotate(new Angle(Math.PI / 10), new Vector(canvas.width * 0.5, canvas.height * 0.5));
     }
 }
+
+actors.push(physics.createBall(80, 800, canvas.width * 0.5, canvas.height * 0.5));
 
 canvas.addEventListener('mousemove', function (e) {
     mouseCenter = new Vector(e.clientX, e.clientY);

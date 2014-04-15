@@ -62,15 +62,17 @@ var Physics = (function (_super) {
 
         for (i in this.actors) {
             this.updateActor(this.actors[i], dt);
-        }
-
-        for (i in this.actors) {
+            
             for (j in this.actors) {
                 if (this.actors[i] !== this.actors[j]) {
                     this.checkForCollision(this.actors[i], this.actors[j]);
                 }
             }
         }
+
+//        for (i in this.actors) {
+//            
+//        }
     };
 
     /**
@@ -82,7 +84,7 @@ var Physics = (function (_super) {
         var resultant = Vector.NIL, forceAngle, distance;
 
         // gravitational forces
-        
+
         if (this.options.gravitationalForces) {
             for (var i in this.actors) {
                 if (this.actors[i] !== actor) {
@@ -107,7 +109,7 @@ var Physics = (function (_super) {
             resultant = Vector.NIL,
             i;
 
-         actor.velocity = actor.velocity.add(resultant.scale(1 / actor.mass).scale(dt));
+        actor.velocity = actor.velocity.add(resultant.scale(1 / actor.mass).scale(dt));
         actor.translate(actor.velocity.add(prevVel).scale(1 / 2).scale(dt));
     };
 

@@ -16,6 +16,8 @@ var PointActor = (function (_super) {
         this.mass = m;
         this.type = 'point';
         this.id = ++PointActor.count;
+        
+        this.computeAabb();
     }
 
     PointActor.count = 0;
@@ -39,6 +41,8 @@ var PointActor = (function (_super) {
         }
 
         this.theta = this.theta.add(angle);
+        
+        this.computeAabb();
     };
 
     /**
@@ -47,6 +51,8 @@ var PointActor = (function (_super) {
      */
     PointActor.prototype.translate = function (translation) {
         this.center = this.center.add(translation);
+        
+        this.computeAabb();
     };
 
     /**
@@ -54,15 +60,14 @@ var PointActor = (function (_super) {
      * @param {Vector} factor
      */
     PointActor.prototype.scale = function (factor) {
-
     };
 
     /**
      *
      * @returns {AABB}
      */
-    PointActor.prototype.aabb = function () {
-        return new AABB(this.center, this.center);
+    PointActor.prototype.computeAabb = function () {
+        this.aabb = new AABB(this.center, this.center);
     };
     
     return PointActor;

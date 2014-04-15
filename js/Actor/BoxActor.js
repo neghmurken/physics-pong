@@ -4,9 +4,10 @@ var BoxActor = (function (_super) {
     extend(BoxActor, _super);
 
     function BoxActor(x, y, w, h, m) {
-        BoxActor.parent.constructor.call(this, x, y, m);
-        
         this.dimension = new Vector(w, h);
+        
+        BoxActor.parent.constructor.call(this, x, y, m);
+
         this.type = 'box';
     }
 
@@ -16,6 +17,8 @@ var BoxActor = (function (_super) {
      */
     BoxActor.prototype.scale = function (factor) {
         this.dimension = this.dimension.mul(factor);
+        
+        BoxActor.parent.scale.call(this, factor);
     };
 
     /**
@@ -34,12 +37,12 @@ var BoxActor = (function (_super) {
             this.center.add(diag.mirrorX()).rotate(this.theta, this.center)
         ];
     };
-
+    
     /**
      *
-     * @returns {Array}
+     * @returns {AABB}
      */
-    BoxActor.prototype.aabb = function () {
+    BoxActor.prototype.computeAabb = function() {
         var xs = [], ys = [], bounds = this.bounds();
 
         for (var i in bounds) {
@@ -47,7 +50,7 @@ var BoxActor = (function (_super) {
             ys.push(bounds[i].y);
         }
 
-        return new AABB(
+        this.aabb = new AABB(
             new Vector(Math.min.apply(null, xs), Math.min.apply(null, ys)),
             new Vector(Math.max.apply(null, xs), Math.max.apply(null, ys))
         );
