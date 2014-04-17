@@ -27,8 +27,16 @@ var PointActor = (function (_super) {
      * @returns {Vector}
      */
     PointActor.prototype.getMomentum = function () {
-        return this.velocity.scale(this.mass);  
+        return this.velocity.scale(this.mass);
     };
+    
+    /**
+     *
+     * @returns {Number}
+     */
+    PointActor.prototype.getKineticEnergy = function () {
+        return 0.5 * this.mass * Math.pow(this.velocity.length(), 2);
+    }
 
     /**
      *
