@@ -113,7 +113,7 @@ var CollisionDetector = (function (_super) {
             return new Collision(
                 left,
                 right,
-                closest.sub(distance.norm().scale(penetration / 2)).add(right.center).rotate(right.theta),
+                closest.sub(distance.norm().scale(penetration / 2)).add(right.center).rotate(right.theta, right.center),
                 distance.norm().inverse().rotate(right.theta),
                 penetration
             );
