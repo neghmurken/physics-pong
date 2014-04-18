@@ -1,3 +1,5 @@
+/* jshint browser: true */
+/* globals Physics:true, Vector:true, Angle:true */
 var canvas = document.createElement('canvas');
 canvas.id = 'pp';
 canvas.width = window.innerWidth - (document.body.style.marginLeft + document.body.style.marginRight);
@@ -24,6 +26,7 @@ function printPolygon(points) {
 }
 
 function printActor(actor) {
+    var a;
     ctx.strokeStyle = '#ddd';
     ctx.lineWidth = 1;
     ctx.lineJoin = 'bevel';
@@ -34,7 +37,7 @@ function printActor(actor) {
             
             ctx.beginPath();
             ctx.moveTo(actor.center.x, canvas.height - actor.center.y);
-            var a = actor.center.add(actor.theta.toVector(actor.dimension.x / 2));
+            a = actor.center.add(actor.theta.toVector(actor.dimension.x / 2));
             ctx.strokeStyle = '#407fb5';
             ctx.lineTo(a.x, canvas.height - a.y);
             ctx.closePath();
@@ -50,7 +53,7 @@ function printActor(actor) {
             
             ctx.beginPath();
             ctx.moveTo(actor.center.x, canvas.height - actor.center.y);
-            var a = actor.center.add(actor.theta.toVector(actor.radius));
+            a = actor.center.add(actor.theta.toVector(actor.radius));
             ctx.strokeStyle = '#407fb5';
             ctx.lineTo(a.x, canvas.height - a.y);
             ctx.closePath();
@@ -81,6 +84,17 @@ function printActor(actor) {
     ctx.stroke();
 }
 
+var printKineticEnergy = function (actors) {
+    var sum = 0;
+    
+    actors.map(function (v) {
+        sum += v.getKineticEnergy();
+    });
+    
+    ctx.fillStyle = '#fff';
+    ctx.fillText('K : ' + (sum / 1000).toFixed(3).replace('.', ',') + ' kJ', 20, 15);
+};
+
 var physics = new Physics(canvas.width, canvas.height),
     actors = [],
     pos,
@@ -98,10 +112,10 @@ actors[3].rotate(new Angle(Math.PI / 4), new Vector(canvas.width * 0.5, canvas.h
 
 for (var j = 0 ; j < 4 ; j++) {
     pos = new Vector(canvas.width * 0.5 + 100 + (25 * j), canvas.height * 0.5);
-    for (var i = 0 ; i < 20 ; i++) {
+    for (var i = 0 ; i < 16 ; i++) {
         actors[(i + (j * 20)) + 4] = physics.createBall(10, 10, pos.x, pos.y);
-        actors[(i + (j * 20)) + 4].velocity = (new Angle(Math.PI / 10 * i  + Math.PI / 2)).toVector(50);
-        pos = pos.rotate(new Angle(Math.PI / 10), new Vector(canvas.width * 0.5, canvas.height * 0.5));
+        actors[(i + (j * 20)) + 4].velocity = (new Angle(Math.PI / 8 * i  + Math.PI)).toVector(50);
+        pos = pos.rotate(new Angle(Math.PI / 8), new Vector(canvas.width * 0.5, canvas.height * 0.5));
     }
 }
 
@@ -134,17 +148,19 @@ this.oncollision = function (coll) {
     
     ctx.closePath();
     ctx.stroke();
-}
+};
 
 var paint = function () {
-    ctx.fillStyle = 'rgba(51, 51, 51, 1)';
+    ctx.fillStyle = 'rgba(51, 51, 51, 0.9)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     window.requestAnimationFrame(paint);
 
     physics.update();
 
-    for (i in actors) {
+    for (var i in actors) {
         printActor(actors[i]);
     }
+    
+    printKineticEnergy(actors);
 };
 window.requestAnimationFrame(paint);
