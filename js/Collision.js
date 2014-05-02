@@ -3,7 +3,7 @@ var Collision = (function (_super) {
 
     extend(Collision, _super);
     
-    Collision.EPSILON = 1;
+    Collision.EPSILON = 0.2;
 
     /**
      *
