@@ -4,9 +4,8 @@ var Vector = (function (_super) {
     extend(Vector, _super);
     
     function Vector(x, y) {
-        var precision = 10e5;
-        this.x = Math.round(x * precision) / precision;
-        this.y = Math.round(y * precision) / precision;
+        this.x = x;
+        this.y = y;
     }
 
     Vector.NIL = new Vector(0, 0);
@@ -32,7 +31,13 @@ var Vector = (function (_super) {
      * @returns {Vector}
      */
     Vector.prototype.norm = function () {
-        return this.scale(1 / this.length());
+        var length = this.length();
+        
+        if (length > 0) {
+            return this.scale(1 / length);
+        }
+        
+        return Vector.NIL;
     };
     
     /**
