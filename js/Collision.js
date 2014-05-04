@@ -53,7 +53,7 @@ var Collision = (function (_super) {
         return this.normal.inverse().scale(
             (this.penetration  + Collision.EPSILON) * (this.initiator.velocity.length() / this.getTotalVelocityLength())
         );
-    }
+    };
     
     /**
      * @returns {Vector}
@@ -62,7 +62,7 @@ var Collision = (function (_super) {
         return this.normal.scale(
             (this.penetration  + Collision.EPSILON) * (this.target.velocity.length() / this.getTotalVelocityLength())
         );
-    }
+    };
 
     return Collision;
 })(Object);

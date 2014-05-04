@@ -3,11 +3,11 @@ var extend = function(child, parent) {
         if (parent.hasOwnProperty(key)) {
             child[key] = parent[key]; 
         }
-    };
+    }
 
     function ctor() {
         this.constructor = child; 
-    };
+    }
 
     ctor.prototype = parent.prototype; 
 
@@ -21,7 +21,7 @@ var merge = function () {
     var output = {};
     
     for (var i = 0 ; i < arguments.length ; i++) {
-        for (name in arguments[i]) {
+        for (var name in arguments[i]) {
             if (arguments[i].hasOwnProperty(name)) {
                 output[name] = arguments[i][name];
             }
@@ -29,4 +29,4 @@ var merge = function () {
     }
     
     return output;
-}
+};

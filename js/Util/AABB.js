@@ -3,6 +3,12 @@ var AABB = (function (_super) {
 
     extend(AABB, _super);
 
+    /**
+     *
+     * @param sw
+     * @param ne
+     * @constructor
+     */
     function AABB(sw, ne) {
         this.sw = sw;
         this.ne = ne;

@@ -92,49 +92,33 @@ var printKineticEnergy = function (actors) {
     });
     
     ctx.fillStyle = '#fff';
-    ctx.fillText('K : ' + (sum / 1000).toFixed(3).replace('.', ',') + ' kJ', 20, 15);
+    ctx.fillText('K : ' + (sum / 1000).toFixed(3).replace('.', ',') + ' kJ', 5, 15);
 };
 
 var physics = new Physics(canvas.width, canvas.height),
-    actors = [],
-    pos,
-    random,
+    actors = []
     mouseCenter = Vector.NIL;
 
-actors[0] = physics.createBox(400, 10, 1e10, canvas.width * 0.5, canvas.height * 0.5 + 200);
-actors[0].rotate(new Angle(Math.PI / 4), new Vector(canvas.width * 0.5, canvas.height * 0.5));
-actors[1] = physics.createBox(10, 400, 1e10, canvas.width * 0.5 + 200, canvas.height * 0.5);
-actors[1].rotate(new Angle(Math.PI / 4), new Vector(canvas.width * 0.5, canvas.height * 0.5));
-actors[2] = physics.createBox(400, 10, 1e10, canvas.width * 0.5, canvas.height * 0.5 - 200);
-actors[2].rotate(new Angle(Math.PI / 4), new Vector(canvas.width * 0.5, canvas.height * 0.5));
-actors[3] = physics.createBox(10, 400, 1e10, canvas.width * 0.5 - 200, canvas.height * 0.5);
-actors[3].rotate(new Angle(Math.PI / 4), new Vector(canvas.width * 0.5, canvas.height * 0.5));
+actors[0] = physics.createBox(80, 80, 3, canvas.width * 0.5, canvas.height * 0.5 + 200);
+actors[0].rotate(new Angle(Math.PI / 4));
+actors[0].velocity = new Vector(0, -50);
 
-for (var j = 0 ; j < 4 ; j++) {
-    pos = new Vector(canvas.width * 0.5 + 100 + (25 * j), canvas.height * 0.5);
-    for (var i = 0 ; i < 16 ; i++) {
-        actors[(i + (j * 20)) + 4] = physics.createBall(10, 10, pos.x, pos.y);
-        actors[(i + (j * 20)) + 4].velocity = (new Angle(Math.PI / 8 * i  + Math.PI)).toVector(50);
-        pos = pos.rotate(new Angle(Math.PI / 8), new Vector(canvas.width * 0.5, canvas.height * 0.5));
-    }
-}
-
-actors.push(physics.createBall(80, 800, canvas.width * 0.5, canvas.height * 0.5));
+actors[1] = physics.createBox(200, 40, 3, canvas.width * 0.5, canvas.height * 0.5);
 
 canvas.addEventListener('mousemove', function (e) {
     mouseCenter = new Vector(e.clientX, e.clientY);
 });
 
-canvas.addEventListener('mouseenter', function (e) {
+canvas.addEventListener('mouseenter', function () {
     physics.start();
 });
 
-canvas.addEventListener('mouseleave', function (e) {
+canvas.addEventListener('mouseleave', function () {
     physics.stop();
 });
 
 /* crappy. debug purpose only */
-this.oncollision = function (coll) {
+window.oncollision = function (coll) {
     ctx.strokeStyle = '#f44646';
     ctx.beginPath();
     var iv = coll.normal.scale(20).add(coll.impact),

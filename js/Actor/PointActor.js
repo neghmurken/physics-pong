@@ -36,7 +36,7 @@ var PointActor = (function (_super) {
      */
     PointActor.prototype.getKineticEnergy = function () {
         return 0.5 * this.mass * Math.pow(this.velocity.length(), 2);
-    }
+    };
 
     /**
      *

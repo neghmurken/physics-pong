@@ -5,7 +5,7 @@ var Angle = (function (_super) {
 
     function Angle(angle) {
         this.t = (angle + Math.PI * 2) % (Math.PI * 2);
-    };
+    }
 
     Angle.EAST = new Angle(0);
     Angle.NORTHEAST = new Angle(Math.PI / 4);
@@ -48,7 +48,7 @@ var Angle = (function (_super) {
 
     /**
      *
-     * @param {Angle} angle
+     * @param {Angle} delta
      * @returns {Angle}
      */
     Angle.prototype.sub = function (delta) {

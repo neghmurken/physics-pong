@@ -81,7 +81,7 @@ var Physics = (function (_super) {
      * @returns {Array}
      */
     Physics.prototype.gatherForces = function (actor) {
-        var resultant = Vector.NIL, forceAngle, distance;
+        var resultant = Vector.NIL, distance;
 
         // gravitational forces
 
@@ -105,9 +105,7 @@ var Physics = (function (_super) {
      */
     Physics.prototype.updateActor = function (actor, dt) {
         var resultant = this.gatherForces(actor),
-            prevVel = actor.velocity,
-            resultant = Vector.NIL,
-            i;
+            prevVel = actor.velocity;
 
         actor.velocity = actor.velocity.add(resultant.scale(1 / actor.mass).scale(dt));
         actor.translate(actor.velocity.add(prevVel).scale(1 / 2).scale(dt));
@@ -138,10 +136,9 @@ var Physics = (function (_super) {
         var tg = collision.tangent(),
             cn = collision.normal,
             masses = left.mass + right.mass,
-            cr = 1,// TODO : compute from objects elasticity
+            cr = 1.00,// TODO : compute from objects elasticity
             v1 = left.velocity.dot(cn),
-            v2 = right.velocity.dot(cn),
-            epsilon = 1;
+            v2 = right.velocity.dot(cn);
 
         // error correction
         // TODO: translate objects along the velocity normal not the collision normal

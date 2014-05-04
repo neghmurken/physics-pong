@@ -129,17 +129,17 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.computeBoxBoxCollision = function (left, right) {
-        var minksum = [],
+        var minksum = new Polygon(),
             leftBounds = left.bounds(),
             rightBounds = right.bounds();
 
         for (var a in leftBounds) {
             for (var b in rightBounds) {
-                minksum.push(leftBounds[a].sub(rightBounds[b]));
+                minksum.addPoint(leftBounds[a].sub(rightBounds[b]));
             }
         }
-        
-        
+
+        console.log(minksum.center());
 
         return null;
     };
