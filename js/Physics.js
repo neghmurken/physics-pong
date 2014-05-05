@@ -133,7 +133,7 @@ var Physics = (function (_super) {
             return;
         }
 
-        var tg = collision.tangent(),
+        var tg = collision.normal.tangent(),
             cn = collision.normal,
             masses = left.mass + right.mass,
             cr = 1.00,// TODO : compute from objects elasticity

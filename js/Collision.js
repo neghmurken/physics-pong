@@ -30,14 +30,6 @@ var Collision = (function (_super) {
     Collision.prototype.setId = function (id) {
         this.id = id;
     };
-
-    /**
-     *
-     * @returns {Vector}
-     */
-    Collision.prototype.tangent = function () {
-        return new Vector(this.normal.y, -this.normal.x);
-    };
     
     /**
      * @returns {Number}

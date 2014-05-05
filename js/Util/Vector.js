@@ -42,6 +42,14 @@ var Vector = (function (_super) {
     
     /**
      *
+     * @returns {Vector}
+     */
+    Vector.prototype.tangent = function () {
+        return new Vector(this.y, -this.x);
+    };
+    
+    /**
+     *
      * @returns {Angle}
      */
     Vector.prototype.angle = function () {
