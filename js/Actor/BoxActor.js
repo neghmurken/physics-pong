@@ -40,20 +40,23 @@ var BoxActor = (function (_super) {
     
     /**
      *
-     * @returns {AABB}
      */
     BoxActor.prototype.computeAabb = function() {
-        var xs = [], ys = [], bounds = this.bounds();
+        var xs = [], ys = [], bounds = this.bounds(), sw, ne;
 
         for (var i in bounds) {
             xs.push(bounds[i].x);
             ys.push(bounds[i].y);
         }
+        
+        sw = new Vector(Math.min.apply(null, xs), Math.min.apply(null, ys));
+        ne = new Vector(Math.max.apply(null, xs), Math.max.apply(null, ys));
 
-        this.aabb = new AABB(
-            new Vector(Math.min.apply(null, xs), Math.min.apply(null, ys)),
-            new Vector(Math.max.apply(null, xs), Math.max.apply(null, ys))
-        );
+        if (this.aabb instanceof AABB) {
+            this.aabb.update(sw, ne);
+        } else {
+            this.aabb = new AABB(sw, ne);
+        }
     };
 
     return BoxActor;

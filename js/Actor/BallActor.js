@@ -23,15 +23,17 @@ var BallActor = (function (_super) {
 
     /**
      *
-     * @returns {AABB}
      */
     BallActor.prototype.computeAabb = function () {
-        var radiusVector = new Vector(this.radius, this.radius);
-        
-        this.aabb = new AABB(
-            this.center.sub(radiusVector),
-            this.center.add(radiusVector)
-        );
+        var radiusVector = new Vector(this.radius, this.radius),
+            sw = this.center.sub(radiusVector),
+            ne = this.center.add(radiusVector);
+
+        if (this.aabb instanceof AABB) {
+            this.aabb.update(sw, ne);
+        } else {
+            this.aabb = new AABB(sw, ne);
+        }
     };
     
     return BallActor;

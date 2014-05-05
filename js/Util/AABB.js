@@ -10,9 +10,17 @@ var AABB = (function (_super) {
      * @constructor
      */
     function AABB(sw, ne) {
+        this.update(sw, ne);
+    }
+    
+    /**
+     * @param {Vector} sw
+     * @param {Vector} ne
+     */
+    AABB.prototype.update = function (sw, ne) {
         this.sw = sw;
         this.ne = ne;
-    }
+    };
 
     /**
      *

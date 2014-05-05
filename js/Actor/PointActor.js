@@ -6,6 +6,7 @@ var PointActor = (function (_super) {
     function PointActor(x, y, m) {
         this.center = new Vector(x, y);
         this.velocity = Vector.NIL;
+        this.aabb = null;
 
         this.theta = Angle.EAST;
 
@@ -72,10 +73,13 @@ var PointActor = (function (_super) {
 
     /**
      *
-     * @returns {AABB}
      */
     PointActor.prototype.computeAabb = function () {
-        this.aabb = new AABB(this.center, this.center);
+        if (this.aabb instanceof AABB) {
+            this.aabb.update(this.center, this.center);
+        } else {
+            this.aabb = new AABB(this.center, this.center);
+        }
     };
     
     return PointActor;
