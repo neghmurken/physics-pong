@@ -129,7 +129,7 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.computeBoxBoxCollision = function (left, right) {
-        var minksum = new Polygon(),
+        var minksum = new ConvexPolygon(),
             leftBounds = left.bounds(),
             rightBounds = right.bounds();
 
@@ -139,7 +139,9 @@ var CollisionDetector = (function (_super) {
             }
         }
 
-        console.log(minksum.center());
+        // test if origin is in the shape
+        if (minksum.contains(Vector.NIL)) {
+        }
 
         return null;
     };

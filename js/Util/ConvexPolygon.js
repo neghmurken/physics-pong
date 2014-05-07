@@ -1,14 +1,14 @@
-var Polygon = (function (_super) {
+var ConvexPolygon = (function (_super) {
     "use strict";
 
-    extend(Polygon, _super);
+    extend(ConvexPolygon, _super);
 
     /**
      *
      * @param points
      * @constructor
      */
-    function Polygon (points) {
+    function ConvexPolygon (points) {
         this.setPoints(typeof points !== 'undefined' ? points : []);
     }
 
@@ -16,7 +16,7 @@ var Polygon = (function (_super) {
      *
      * @param {Array} points
      */
-    Polygon.prototype.setPoints = function (points) {
+    ConvexPolygon.prototype.setPoints = function (points) {
         var self = this;
 
         this.points = [];
@@ -30,14 +30,21 @@ var Polygon = (function (_super) {
      *
      * @param {Vector|Array} point
      */
-    Polygon.prototype.addPoint = function (point) {
+    ConvexPolygon.prototype.addPoint = function (point) {
         this.points.push(point instanceof Vector ? point : new Vector(point[0], point[1]));
+    };
+    
+    /**
+     * @returns {Array}
+     */
+    ConvexPolygon.prototype.getConvexHull = function () {
+        
     };
 
     /**
      * @return {Vector}
      */
-    Polygon.prototype.center = function () {
+    ConvexPolygon.prototype.center = function () {
         var x = 0, y = 0, length = this.points.length;
 
         this.points.forEach(function (point) {
@@ -47,6 +54,16 @@ var Polygon = (function (_super) {
 
         return new Vector(x / length, y / length);
     };
+    
+    /**
+     * @param {Vector} point
+     * @returns {Boolean}
+     */
+    ConvexPolygon.prototype.contains = function (point) {
+        var hull = this.getConvexHull();
+        
+        
+    };
 
-    return Polygon;
+    return ConvexPolygon;
 })(Object);
