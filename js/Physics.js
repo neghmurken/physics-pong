@@ -89,12 +89,12 @@ var Physics = (function (_super) {
             for (var i in this.actors) {
                 if (this.actors[i] !== actor) {
                     distance = this.actors[i].center.sub(actor.center);
-
-                    resultant.add(distance.norm().scale(Physics.G * (actor.mass * this.actors[i].mass) / Math.pow(distance.length(), 2)));
+                    
+                    resultant = resultant.add(distance.norm().scale(Physics.G * (actor.mass * this.actors[i].mass) / Math.pow(distance.length(), 2)));
                 }
             }
         }
-
+        
         return resultant;
     };
 
@@ -106,7 +106,7 @@ var Physics = (function (_super) {
     Physics.prototype.updateActor = function (actor, dt) {
         var resultant = this.gatherForces(actor),
             prevVel = actor.velocity;
-
+        
         actor.velocity = actor.velocity.add(resultant.scale(1 / actor.mass).scale(dt));
         actor.translate(actor.velocity.add(prevVel).scale(1 / 2).scale(dt));
     };
@@ -136,7 +136,7 @@ var Physics = (function (_super) {
         var tg = collision.normal.tangent(),
             cn = collision.normal,
             masses = left.mass + right.mass,
-            cr = 1.00,// TODO : compute from objects elasticity
+            cr = 0.7,// TODO : compute from objects elasticity
             v1 = left.velocity.dot(cn),
             v2 = right.velocity.dot(cn);
 
@@ -146,11 +146,11 @@ var Physics = (function (_super) {
         right.translate(collision.getTargetErrorCorrection());
 
         left.velocity = tg
-            .scale(left.velocity.dot(tg))
+            .scale(left.velocity.dot(tg) * cr)
             .add(cn.scale((cr * v1 * (left.mass - right.mass) + 2 * right.mass * v2) / masses));
 
         right.velocity = tg
-            .scale(right.velocity.dot(tg))
+            .scale(right.velocity.dot(tg) * cr)
             .add(cn.scale((cr * v2 * (right.mass - left.mass) + 2 * left.mass * v1) / masses));
 
         window.oncollision(collision);
