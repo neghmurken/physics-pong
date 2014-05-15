@@ -62,7 +62,18 @@ var ConvexPolygon = (function (_super) {
     ConvexPolygon.prototype.contains = function (point) {
         var hull = this.getConvexHull();
         
-        
+    };
+    
+    /**
+     * @param {Vector} point
+     * @param {Vector} lineStart
+     * @param {Vector} lineEnd
+     * @returns {Boolean}
+     */
+    ConvexPolygon.isPointLeftTo = function (point, lineStart, lineEnd) {
+        return 
+            (lineEnd.x - lineStart.x) * (point.y - lineStart.y) - 
+            (lineEnd.y - lineStart.y) * (point.x - lineStart.x) > 0;
     };
 
     return ConvexPolygon;
