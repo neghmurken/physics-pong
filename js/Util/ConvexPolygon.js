@@ -38,7 +38,32 @@ var ConvexPolygon = (function (_super) {
      * @returns {Array}
      */
     ConvexPolygon.prototype.getConvexHull = function () {
+        var origin = null, 
+            points = this.points.slice(),
+            stack = [];
+
+        // get bottom-right point
+        points.forEach(function (point) {
+            if (!origin || origin.y > point.y || origin.y === point.y && origin.x <= point.x) {
+                origin = point;
+            }
+        });
+
+        // sort points
+        points.sort(function (left, right) {
+            return ConvexPolygon.orthoDistanceToLine(left, origin, right);
+        });
+
+        // apply algorithms with stack
+        // we first init the stack with the first two points
+        stack.push(points.unshift());
+        stack.push(points.unshift());
         
+        while (points.length !== 0) {
+            
+        }
+
+        // pop the stack
     };
 
     /**
@@ -62,6 +87,7 @@ var ConvexPolygon = (function (_super) {
     ConvexPolygon.prototype.contains = function (point) {
         var hull = this.getConvexHull();
         
+        
     };
     
     /**
@@ -70,10 +96,9 @@ var ConvexPolygon = (function (_super) {
      * @param {Vector} lineEnd
      * @returns {Boolean}
      */
-    ConvexPolygon.isPointLeftTo = function (point, lineStart, lineEnd) {
-        return 
-            (lineEnd.x - lineStart.x) * (point.y - lineStart.y) - 
-            (lineEnd.y - lineStart.y) * (point.x - lineStart.x) > 0;
+    ConvexPolygon.orthoDistanceToLine = function (point, lineStart, lineEnd) {
+        return (lineEnd.x - lineStart.x) * (point.y - lineStart.y) - 
+            (lineEnd.y - lineStart.y) * (point.x - lineStart.x);
     };
 
     return ConvexPolygon;
