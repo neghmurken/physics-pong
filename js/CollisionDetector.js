@@ -106,7 +106,7 @@ var CollisionDetector = (function (_super) {
                 Math.max(-right.dimension.y / 2, Math.min(right.dimension.y / 2, transposed.y))
             ),
             distance = transposed.sub(closest);
-        
+
         if (distance.length() <= left.radius) {
             var penetration = left.radius - distance.length();
             
@@ -129,6 +129,26 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.computeBoxBoxCollision = function (left, right) {
+        var minksum = CollisionDetector.minkowskiDiff(left, right);
+
+        // test if origin is in the shape
+        if (minksum.contains(Vector.NIL)) {
+            
+        }
+
+        return null;
+    };
+
+    /**
+     * @param {BoxActor} left
+     * @param {BoxActor} right
+     * @returns {ConvexPolygon}
+     */
+    CollisionDetector.minkowskiDiff = function (left, right) {
+        if (!(left instanceof BoxActor) && !(right instanceof BoxActor)) {
+            throw new TypeError('Parameters must be instances of BoxActor');
+        }
+        
         var minksum = new ConvexPolygon(),
             leftBounds = left.bounds(),
             rightBounds = right.bounds();
@@ -138,12 +158,8 @@ var CollisionDetector = (function (_super) {
                 minksum.addPoint(leftBounds[a].sub(rightBounds[b]));
             }
         }
-
-        // test if origin is in the shape
-        if (minksum.contains(Vector.NIL)) {
-        }
-
-        return null;
+        
+        return minksum;
     };
 
     return CollisionDetector;
