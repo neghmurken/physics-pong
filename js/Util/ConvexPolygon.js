@@ -8,7 +8,7 @@ var ConvexPolygon = (function (_super) {
      * @param points
      * @constructor
      */
-    function ConvexPolygon (points) {
+    function ConvexPolygon(points) {
         this.setPoints(typeof points !== 'undefined' ? points : []);
     }
 
@@ -33,13 +33,14 @@ var ConvexPolygon = (function (_super) {
     ConvexPolygon.prototype.addPoint = function (point) {
         this.points.push(point instanceof Vector ? point : new Vector(point[0], point[1]));
     };
-    
+
     /**
      * @returns {Array}
      */
     ConvexPolygon.prototype.getConvexHull = function () {
-        var origin = null, 
+        var origin = null,
             points = this.points.slice(),
+            point = null,
             stack = [];
 
         // get bottom-right point
@@ -49,28 +50,45 @@ var ConvexPolygon = (function (_super) {
             }
         });
 
+        points.splice(points.indexOf(origin), 1);
+
         // sort points
-        points.sort(function (left, right) {
-            return ConvexPolygon.orthoDistanceToLine(left, origin, right);
+        points.sort(function (a, b) {
+            return ConvexPolygon.orthoDistanceToLine(a, origin, b);
         });
+
+//        console.log(points.slice());
 
         // apply algorithms with stack
         // we first init the stack with the first two points
-        stack.push(points.unshift());
-        stack.push(points.unshift());
-        
+        stack.push(origin);
+        stack.push(points.shift());
+
         while (points.length !== 0) {
-            
+            point = points.shift();
+
+            while (stack.length > 2) {
+                if (ConvexPolygon.orthoDistanceToLine(point, stack[stack.length - 2], stack[stack.length - 1]) > 0) {
+                    break;
+                }
+
+                stack.pop();
+            }
+
+            stack.push(point);
         }
 
-        // pop the stack
+        // return the stack
+        return stack;
     };
 
     /**
      * @return {Vector}
      */
     ConvexPolygon.prototype.center = function () {
-        var x = 0, y = 0, length = this.points.length;
+        var x = 0,
+            y = 0,
+            length = this.points.length;
 
         this.points.forEach(function (point) {
             x += point.x;
@@ -79,17 +97,23 @@ var ConvexPolygon = (function (_super) {
 
         return new Vector(x / length, y / length);
     };
-    
+
     /**
      * @param {Vector} point
      * @returns {Boolean}
      */
     ConvexPolygon.prototype.contains = function (point) {
         var hull = this.getConvexHull();
-        
-        
+
+        for (var i = 0; i < hull.length; i++) {
+            if (ConvexPolygon.orthoDistanceToLine(point, hull[i], hull[(i + 1) % hull.length]) < 0) {
+                return false;
+            }
+        }
+
+        return true;
     };
-    
+
     /**
      * @param {Vector} point
      * @param {Vector} lineStart
@@ -97,7 +121,7 @@ var ConvexPolygon = (function (_super) {
      * @returns {Boolean}
      */
     ConvexPolygon.orthoDistanceToLine = function (point, lineStart, lineEnd) {
-        return (lineEnd.x - lineStart.x) * (point.y - lineStart.y) - 
+        return (lineEnd.x - lineStart.x) * (point.y - lineStart.y) -
             (lineEnd.y - lineStart.y) * (point.x - lineStart.x);
     };
 
