@@ -129,11 +129,30 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.computeBoxBoxCollision = function (left, right) {
-        var minksum = CollisionDetector.minkowskiDiff(left, right);
+        var minkdiff = CollisionDetector.minkowskiDiff(left, right),
+            hull = null,
+            sorted = null,
+            edge = null;
 
         // test if origin is in the shape
-        if (minksum.contains(Vector.NIL)) {
+        if (minkdiff.contains(Vector.NIL)) {
+            // compute the MTV (minimum translational vector) between the minkdiff and the origin
+            hull = minkdiff.getConvexHull();
+            sorted = hull.slice();
             
+            sorted.sort(function (a, b) {
+                return a.length() - b.length();
+            });
+            
+            edge = sorted[0].sub(sorted[1]);
+            
+            return new Collision(
+                left,
+                right,
+                null,
+                edge.norm().tangent(),
+                Math.abs(edge.norm().tangent().dot(sorted[0]))
+            );
         }
 
         return null;

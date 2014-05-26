@@ -57,8 +57,6 @@ var ConvexPolygon = (function (_super) {
             return ConvexPolygon.orthoDistanceToLine(a, origin, b);
         });
 
-//        console.log(points.slice());
-
         // apply algorithms with stack
         // we first init the stack with the first two points
         stack.push(origin);
@@ -86,11 +84,12 @@ var ConvexPolygon = (function (_super) {
      * @return {Vector}
      */
     ConvexPolygon.prototype.center = function () {
-        var x = 0,
+        var hull = this.getConvexHull(),
+            x = 0,
             y = 0,
-            length = this.points.length;
+            length = hull.length;
 
-        this.points.forEach(function (point) {
+        hull.forEach(function (point) {
             x += point.x;
             y += point.y;
         });
