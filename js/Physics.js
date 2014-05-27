@@ -134,11 +134,19 @@ var Physics = (function (_super) {
 
         var tg = collision.normal.tangent(),
             cn = collision.normal,
+            // mass of left actor
             m1 = left.options.immobile ? 1e99 : left.mass,
+            // mass of right actor
             m2 = right.options.immobile ? 1e99 : right.mass,
+            // total mass of the system
             masses = m1 + m2,
-            cr = 0.65,// TODO : compute from objects elasticity
+            // normal coefficient of restitution depending on both actors elasticity
+            ncr = Math.min(left.options.elasticity, right.options.elasticity),
+            // tangential coefficient of restitution depending on both actors friction
+            tcr = 1 - Math.max(left.options.friction, right.options.friction),
+            // normal velocity of left actor
             v1 = left.velocity.dot(cn),
+            // normal velocity of right actor
             v2 = right.velocity.dot(cn);
     
         // error correction
@@ -148,14 +156,14 @@ var Physics = (function (_super) {
 
         if (!left.options.immobile) {
             left.velocity = tg
-                .scale(left.velocity.dot(tg) * cr)
-                .add(cn.scale((cr * v1 * (m1 - m2) + 2 * m2 * v2) / masses));
+                .scale(left.velocity.dot(tg) * tcr)
+                .add(cn.scale((ncr * v1 * (m1 - m2) + 2 * m2 * v2) / masses));
         }
 
         if (!right.options.immobile) {
             right.velocity = tg
-                .scale(right.velocity.dot(tg) * cr)
-                .add(cn.scale((cr * v2 * (m2 - m1) + 2 * m1 * v1) / masses));
+                .scale(right.velocity.dot(tg) * tcr)
+                .add(cn.scale((ncr * v2 * (m2 - m1) + 2 * m1 * v1) / masses));
         }
 
         window.oncollision(collision);

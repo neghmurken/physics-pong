@@ -19,7 +19,9 @@ var PointActor = (function (_super) {
         this.id = ++PointActor.count;
 
         this.options = merge({
-            immobile: false
+            immobile: false,
+            elasticity: 1,
+            friction: 0
         }, options || {});
         
         this.computeAabb();
