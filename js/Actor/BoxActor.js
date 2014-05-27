@@ -3,10 +3,10 @@ var BoxActor = (function (_super) {
     
     extend(BoxActor, _super);
 
-    function BoxActor(x, y, w, h, m) {
+    function BoxActor(x, y, w, h, m, options) {
         this.dimension = new Vector(w, h);
         
-        BoxActor.parent.constructor.call(this, x, y, m);
+        BoxActor.parent.constructor.call(this, x, y, m, options);
 
         this.type = 'box';
     }

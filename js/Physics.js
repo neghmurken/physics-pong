@@ -69,10 +69,6 @@ var Physics = (function (_super) {
                 }
             }
         }
-
-//        for (i in this.actors) {
-//            
-//        }
     };
 
     /**
@@ -104,11 +100,14 @@ var Physics = (function (_super) {
      * @param {Number} dt Elapsed seconds since previous update
      */
     Physics.prototype.updateActor = function (actor, dt) {
-        var resultant = this.gatherForces(actor),
-            prevVel = actor.velocity;
-        
-        actor.velocity = actor.velocity.add(resultant.scale(1 / actor.mass).scale(dt));
-        actor.translate(actor.velocity.add(prevVel).scale(1 / 2).scale(dt));
+        if (!actor.options.immobile) {
+            var prevVel = actor.velocity;
+
+            actor.velocity = actor.velocity.add(this.gatherForces(actor).scale(1 / actor.mass).scale(dt));
+            actor.translate(actor.velocity.add(prevVel).scale(1 / 2).scale(dt));
+        } else {
+            actor.velocity = Vector.NIL;
+        }
     };
 
     /**
@@ -135,23 +134,29 @@ var Physics = (function (_super) {
 
         var tg = collision.normal.tangent(),
             cn = collision.normal,
-            masses = left.mass + right.mass,
-            cr = 0.7,// TODO : compute from objects elasticity
+            m1 = left.options.immobile ? 1e99 : left.mass,
+            m2 = right.options.immobile ? 1e99 : right.mass,
+            masses = m1 + m2,
+            cr = 0.65,// TODO : compute from objects elasticity
             v1 = left.velocity.dot(cn),
             v2 = right.velocity.dot(cn);
-
+    
         // error correction
         // TODO: translate objects along the velocity normal not the collision normal
         left.translate(collision.getInitiatorErrorCorrection());
         right.translate(collision.getTargetErrorCorrection());
 
-        left.velocity = tg
-            .scale(left.velocity.dot(tg) * cr)
-            .add(cn.scale((cr * v1 * (left.mass - right.mass) + 2 * right.mass * v2) / masses));
+        if (!left.options.immobile) {
+            left.velocity = tg
+                .scale(left.velocity.dot(tg) * cr)
+                .add(cn.scale((cr * v1 * (m1 - m2) + 2 * m2 * v2) / masses));
+        }
 
-        right.velocity = tg
-            .scale(right.velocity.dot(tg) * cr)
-            .add(cn.scale((cr * v2 * (right.mass - left.mass) + 2 * left.mass * v1) / masses));
+        if (!right.options.immobile) {
+            right.velocity = tg
+                .scale(right.velocity.dot(tg) * cr)
+                .add(cn.scale((cr * v2 * (m2 - m1) + 2 * m1 * v1) / masses));
+        }
 
         window.oncollision(collision);
     };
@@ -173,12 +178,14 @@ var Physics = (function (_super) {
      * @param {Number} m Mass
      * @param {Number} x Coordinate x (optional)
      * @param {Number} y Coordinate y (optional)
+     * @param {Object} options
      */
-    Physics.prototype.createPoint = function (m, x, y) {
+    Physics.prototype.createPoint = function (m, x, y, options) {
         var point = new PointActor(
             typeof x !== 'undefined' ? x : 0,
             typeof y !== 'undefined' ? y : 0,
-            m
+            m,
+            options
         );
 
         this.registerActor(point);
@@ -193,14 +200,16 @@ var Physics = (function (_super) {
      * @param {Number} m Mass
      * @param {Number} x Coordinate x (optional)
      * @param {Number} y Coordinate y (optional)
+     * @param {Object} options 
      */
-    Physics.prototype.createBox = function (w, h, m, x, y) {
+    Physics.prototype.createBox = function (w, h, m, x, y, options) {
         var box = new BoxActor(
             typeof x !== 'undefined' ? x : 0,
             typeof y !== 'undefined' ? y : 0,
             w,
             h,
-            m
+            m,
+            options
         );
 
         this.registerActor(box);
@@ -214,13 +223,15 @@ var Physics = (function (_super) {
      * @param {Number} m Mass
      * @param {Number} x Coordinate x (optional)
      * @param {Number} y Coordinate y (optional)
+     * @param {Object} options
      */
-    Physics.prototype.createBall = function (r, m, x, y) {
+    Physics.prototype.createBall = function (r, m, x, y, options) {
         var ball = new BallActor(
             typeof x !== 'undefined' ? x : 0,
             typeof y !== 'undefined' ? y : 0,
             r,
-            m
+            m,
+            options
         );
 
         this.registerActor(ball);

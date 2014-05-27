@@ -3,10 +3,10 @@ var BallActor = (function (_super) {
 
     extend(BallActor, _super);
 
-    function BallActor(x, y, r, m) {
+    function BallActor(x, y, r, m, options) {
         this.radius = r;
         
-        BallActor.parent.constructor.call(this, x, y, m);
+        BallActor.parent.constructor.call(this, x, y, m, options);
         
         this.type = 'ball';
     }

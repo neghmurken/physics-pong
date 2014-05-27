@@ -3,7 +3,7 @@ var PointActor = (function (_super) {
     
     extend(PointActor, _super);
     
-    function PointActor(x, y, m) {
+    function PointActor(x, y, m, options) {
         this.center = new Vector(x, y);
         this.velocity = Vector.NIL;
         this.aabb = null;
@@ -17,6 +17,10 @@ var PointActor = (function (_super) {
         this.mass = m;
         this.type = 'point';
         this.id = ++PointActor.count;
+
+        this.options = merge({
+            immobile: false
+        }, options || {});
         
         this.computeAabb();
     }
