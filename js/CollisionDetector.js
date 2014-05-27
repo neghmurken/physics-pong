@@ -3,7 +3,7 @@ var CollisionDetector = (function (_super) {
 
     extend(CollisionDetector, _super);
 
-    function CollisionDetector () {
+    function CollisionDetector() {
         this.collisions = [];
     }
 
@@ -21,32 +21,40 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.get = function (left, right) {
-        var id = this.getCollisionId(left, right), 
+        var id = this.getCollisionId(left, right),
             collision = null;
 
         if (this.collisions.indexOf(id) === -1) {
 
             if (left.aabb.intersect(right.aabb)) {
                 switch ([left.type, right.type].join('-')) {
-                    case 'ball-ball':
-                        collision = this.computeBallBallCollision(left, right);
-                        break;
+                case 'point-ball':
+                    collision = this.computePointBallCollision(left, right);
+                    break;
 
-                    case 'ball-box':
-                        collision = this.computeBallBoxCollision(left, right);
-                        break;
-                        
-//                    case 'box-ball':
-//                        collision = this.computeBallBoxCollision(right, left);
-//                        break;
+                case 'point-box':
+                    collision = this.computePointBoxCollision(left, right);
+                    break;
 
-                    case 'box-box':
-                        collision = this.computeBoxBoxCollision(left, right);
-                        break;
+                case 'ball-ball':
+                    collision = this.computeBallBallCollision(left, right);
+                    break;
 
-                    default:
-                        collision = null;
-                        break;
+                case 'ball-box':
+                    collision = this.computeBallBoxCollision(left, right);
+                    break;
+
+                    //                    case 'box-ball':
+                    //                        collision = this.computeBallBoxCollision(right, left);
+                    //                        break;
+
+                case 'box-box':
+                    collision = this.computeBoxBoxCollision(left, right);
+                    break;
+
+                default:
+                    collision = null;
+                    break;
                 }
 
                 if (collision) {
@@ -58,7 +66,7 @@ var CollisionDetector = (function (_super) {
 
         return collision;
     };
-    
+
     /**
      *
      * @param {PointActor} left
@@ -71,6 +79,59 @@ var CollisionDetector = (function (_super) {
 
     /**
      *
+     * @param {PointActor} left
+     * @param {BallActor} right
+     * @returns {Collision}
+     */
+    CollisionDetector.prototype.computePointBallCollision = function (left, right) {
+        var distance = right.center.sub(left.center);
+
+        if (distance.length() <= right.radius) {
+            var penetration = right.radius - distance.length(),
+                norm = distance.norm();
+
+            return new Collision(
+                left,
+                right,
+                norm.scale(-penetration / 2).add(left.center),
+                norm,
+                penetration
+            );
+        }
+    },
+
+    /**
+     *
+     * @param {PointActor} left
+     * @param {BoxActor} right
+     * @returns {Collision}
+     */
+    CollisionDetector.prototype.computePointBoxCollision = function (left, right) {
+//        var transposed = left.center.rotate(right.theta.inverse(), right.center).sub(right.center),
+//            closest = new Vector(
+//                Math.max(-right.dimension.x / 2, Math.min(right.dimension.x / 2, transposed.x)),
+//                Math.max(-right.dimension.y / 2, Math.min(right.dimension.y / 2, transposed.y))
+//            ),
+//            distance = transposed.sub(closest);
+//
+//        if (distance.length() <= 0) {
+//            var penetration = -distance.length(),
+//                norm = distance.norm();
+//            
+//            return new Collision(
+//                left,
+//                right,
+//                closest.sub(norm.scale(penetration / 2)).add(right.center).rotate(right.theta, right.center),
+//                norm.rotate(right.theta),
+//                penetration
+//            );
+//        }
+//
+//        return null;
+    },
+
+    /**
+     *
      * @param {BallActor} left
      * @param {BallActor} right
      * @returns {Collision}
@@ -79,13 +140,14 @@ var CollisionDetector = (function (_super) {
         var distance = right.center.sub(left.center);
 
         if (distance.length() <= left.radius + right.radius) {
-            var penetration = left.radius + right.radius - distance.length();
+            var penetration = left.radius + right.radius - distance.length(),
+                norm = distance.norm();
 
             return new Collision(
                 left,
                 right,
-                distance.norm().scale(left.radius - penetration / 2).add(left.center),
-                distance.norm(),
+                norm.scale(left.radius - penetration / 2).add(left.center),
+                norm,
                 penetration
             );
         }
@@ -94,7 +156,7 @@ var CollisionDetector = (function (_super) {
     };
 
     /**
-     * 
+     *
      * @params {BallActor} left
      * @params {BoxActor} right
      * @returns {Collision}
@@ -108,13 +170,14 @@ var CollisionDetector = (function (_super) {
             distance = transposed.sub(closest);
 
         if (distance.length() <= left.radius) {
-            var penetration = left.radius - distance.length();
-            
+            var penetration = left.radius - distance.length(),
+                norm = distance.norm();
+
             return new Collision(
                 left,
                 right,
-                closest.sub(distance.norm().scale(penetration / 2)).add(right.center).rotate(right.theta, right.center),
-                distance.norm().inverse().rotate(right.theta),
+                closest.sub(norm.scale(penetration / 2)).add(right.center).rotate(right.theta, right.center),
+                norm.rotate(right.theta),
                 penetration
             );
         }
@@ -131,27 +194,27 @@ var CollisionDetector = (function (_super) {
     CollisionDetector.prototype.computeBoxBoxCollision = function (left, right) {
         var minkdiff = CollisionDetector.minkowskiDiff(left, right),
             hull = null,
-            sorted = null,
-            edge = null;
+            tang = null;
 
         // test if origin is in the shape
         if (minkdiff.contains(Vector.NIL)) {
             // compute the MTV (minimum translational vector) between the minkdiff and the origin
-            hull = minkdiff.getConvexHull();
-            sorted = hull.slice();
-            
-            sorted.sort(function (a, b) {
+            hull = minkdiff.getConvexHull().slice();
+
+            hull.sort(function (a, b) {
                 return a.length() - b.length();
             });
-            
-            edge = sorted[0].sub(sorted[1]);
-            
+
+            tang = hull[0].sub(hull[1])
+                .norm()
+                .tangent();
+
             return new Collision(
                 left,
                 right,
                 null,
-                edge.norm().tangent(),
-                Math.abs(edge.norm().tangent().dot(sorted[0]))
+                tang,
+                Math.abs(tang.dot(hull[0]))
             );
         }
 
@@ -167,7 +230,7 @@ var CollisionDetector = (function (_super) {
         if (!(left instanceof BoxActor) && !(right instanceof BoxActor)) {
             throw new TypeError('Parameters must be instances of BoxActor');
         }
-        
+
         var minksum = new ConvexPolygon(),
             leftBounds = left.bounds(),
             rightBounds = right.bounds();
@@ -177,7 +240,7 @@ var CollisionDetector = (function (_super) {
                 minksum.addPoint(leftBounds[a].sub(rightBounds[b]));
             }
         }
-        
+
         return minksum;
     };
 
