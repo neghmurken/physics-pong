@@ -58,15 +58,16 @@ var Physics = (function (_super) {
         }
 
         this.collisionDetector.flush();
-        var dt = this.getElapsedSeconds(), i, j;
+        var dt = this.getElapsedSeconds(), 
+            length = this.actors.length,
+            i,
+            j;
 
-        for (i in this.actors) {
+        for (i = 0 ; i < length ; i++) {
             this.updateActor(this.actors[i], dt);
             
-            for (j in this.actors) {
-                if (this.actors[i] !== this.actors[j]) {
-                    this.checkForCollision(this.actors[i], this.actors[j]);
-                }
+            for (j = i + 1 ; j < length ; j++) {
+                this.checkForCollision(this.actors[i], this.actors[j]);
             }
         }
     };
@@ -90,7 +91,7 @@ var Physics = (function (_super) {
                 }
             }
         }
-        
+
         return resultant;
     };
 
@@ -151,16 +152,16 @@ var Physics = (function (_super) {
     
         // error correction
         // TODO: translate objects along the velocity normal not the collision normal
-        left.translate(collision.getInitiatorErrorCorrection());
-        right.translate(collision.getTargetErrorCorrection());
 
         if (!left.options.immobile) {
+            left.translate(collision.getInitiatorErrorCorrection());
             left.velocity = tg
                 .scale(left.velocity.dot(tg) * tcr)
                 .add(cn.scale((ncr * v1 * (m1 - m2) + 2 * m2 * v2) / masses));
         }
 
         if (!right.options.immobile) {
+            right.translate(collision.getTargetErrorCorrection());
             right.velocity = tg
                 .scale(right.velocity.dot(tg) * tcr)
                 .add(cn.scale((ncr * v2 * (m2 - m1) + 2 * m1 * v1) / masses));

@@ -33,6 +33,10 @@ var Angle = (function (_super) {
         return (new Vector(length, 0)).rotate(this);
     };
     
+    /**
+     *
+     * @param {Number}
+     */
     Angle.prototype.toDegree = function () {
         return this.t * 180 / Math.PI;  
     };

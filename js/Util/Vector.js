@@ -6,6 +6,8 @@ var Vector = (function (_super) {
     function Vector(x, y) {
         this.x = x;
         this.y = y;
+        
+        this._length = null;
     }
 
     Vector.NIL = new Vector(0, 0);
@@ -23,7 +25,11 @@ var Vector = (function (_super) {
      * @returns {Number}
      */
     Vector.prototype.length = function () {
-        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        if (null === this._length) {
+            this._length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        }
+
+        return this._length;
     };
 
     /**

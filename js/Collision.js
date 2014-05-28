@@ -2,7 +2,7 @@ var Collision = (function (_super) {
     "use strict";
 
     extend(Collision, _super);
-    
+
     Collision.EPSILON = 0.02;
 
     /**
@@ -21,8 +21,11 @@ var Collision = (function (_super) {
         this.impact = impact;
         this.normal = normal;
         this.penetration = penetration;
+        
+        this.initiatorFactor = this.initiator.velocity.length() / this.initiator.mass;
+        this.targetFactor = this.target.velocity.length() / this.target.mass;
     }
-    
+
     /**
      *
      * @param {String}
@@ -30,29 +33,36 @@ var Collision = (function (_super) {
     Collision.prototype.setId = function (id) {
         this.id = id;
     };
-    
+
     /**
      * @returns {Number}
      */
-    Collision.prototype.getTotalVelocityLength = function () {
-        return this.initiator.velocity.length() + this.target.velocity.length();
+    Collision.prototype.getInitiatorWeight = function () {
+        return this.initiatorFactor / (this.initiatorFactor + this.targetFactor);
     };
-    
+
+    /**
+     * @returns {Number}
+     */
+    Collision.prototype.getTargetWeight = function () {
+        return this.targetFactor / (this.initiatorFactor + this.targetFactor);
+    };
+
     /**
      * @returns {Vector}
      */
     Collision.prototype.getInitiatorErrorCorrection = function () {
         return this.normal.inverse().scale(
-            (this.penetration  + Collision.EPSILON) * (this.initiator.velocity.length() / this.getTotalVelocityLength())
+            this.penetration * this.getInitiatorWeight() + Collision.EPSILON
         );
     };
-    
+
     /**
      * @returns {Vector}
      */
     Collision.prototype.getTargetErrorCorrection = function () {
         return this.normal.scale(
-            (this.penetration  + Collision.EPSILON) * (this.target.velocity.length() / this.getTotalVelocityLength())
+            this.penetration * this.getTargetWeight() + Collision.EPSILON
         );
     };
 
