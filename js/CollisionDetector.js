@@ -200,26 +200,28 @@ var CollisionDetector = (function (_super) {
     CollisionDetector.prototype.computeBoxBoxCollision = function (left, right) {
         var minkdiff = Geometry.minkowskiDifference(left.bounds(), right.bounds()),
             hull = minkdiff.getConvexHull(),
-            mtd = +Infinity,
-            supportingPoint = null,
-            impact = null;
-        
-        for (var i = 0 ; i < hull.length ; i++) {
-            var supportingPoint = Geometry.supportingPoint(Vector.NIL, hull[i], hull[(i + 1) % hull.length]);
+            mtd = +Infinity, // Minimum Translational Distance
+            //edge = [],
+            current = null,
+            supportingPoint = null;
 
-            if (Math.abs(supportingPoint.length()) < mtd) {
-                impact = supportingPoint;
-                mtd = Math.abs(supportingPoint.length());
+        for (var i = 0 ; i < hull.length ; i++) {
+            var current = Geometry.supportingPoint(Vector.NIL, hull[i], hull[(i + 1) % hull.length]);
+
+            if (current.length() < mtd) {
+                supportingPoint = current;
+                //edge = [hull[i], hull[(i + 1) % hull.length]];
+                mtd = current.length();
             }
         }
-        
+
         if (mtd > 0) {
             return new Collision(
                 left,
                 right,
                 null,
-                impact.norm(),
-                impact.length()
+                supportingPoint.norm(),
+                supportingPoint.length()
             );
         }
 
