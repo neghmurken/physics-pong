@@ -23,44 +23,51 @@ var CollisionDetector = (function (_super) {
     CollisionDetector.prototype.get = function (left, right) {
         var id = this.getCollisionId(left, right),
             collision = null;
+        
+        if (left.options.immobile && right.options.immobile) {
+            return null;
+        }
 
-        if (this.collisions.indexOf(id) === -1) {
+        if (this.collisions.indexOf(id) !== -1) {
+            return null;
+        }
 
-            if (left.aabb.intersect(right.aabb)) {
-                switch (left.type + '-' + right.type) {
-                case 'point-ball':
-                    collision = this.computePointBallCollision(left, right);
-                    break;
+        if (!left.aabb.intersect(right.aabb)) {
+            return null;
+        }
+        
+        switch (left.type + '-' + right.type) {
+            case 'point-ball':
+                collision = this.computePointBallCollision(left, right);
+                break;
 
-                case 'point-box':
-                    collision = this.computePointBoxCollision(left, right);
-                    break;
+            case 'point-box':
+                collision = this.computePointBoxCollision(left, right);
+                break;
 
-                case 'ball-ball':
-                    collision = this.computeBallBallCollision(left, right);
-                    break;
+            case 'ball-ball':
+                collision = this.computeBallBallCollision(left, right);
+                break;
 
-                case 'ball-box':
-                    collision = this.computeBallBoxCollision(left, right);
-                    break;
-                case 'box-ball':
-                    collision = this.computeBallBoxCollision(right, left);
-                    break;
+            case 'ball-box':
+                collision = this.computeBallBoxCollision(left, right);
+                break;
+            case 'box-ball':
+                collision = this.computeBallBoxCollision(right, left);
+                break;
 
-                case 'box-box':
-                    collision = this.computeBoxBoxCollision(left, right);
-                    break;
+            case 'box-box':
+                collision = this.computeBoxBoxCollision(left, right);
+                break;
 
-                default:
-                    collision = null;
-                    break;
-                }
+            default:
+                collision = null;
+                break;
+        }
 
-                if (collision) {
-                    this.collisions.push(id);
-                    collision.setId(id);
-                }
-            }
+        if (collision) {
+            this.collisions.push(id);
+            collision.setId(id);
         }
 
         return collision;
@@ -191,56 +198,32 @@ var CollisionDetector = (function (_super) {
      * @returns {Collision}
      */
     CollisionDetector.prototype.computeBoxBoxCollision = function (left, right) {
-        var minkdiff = CollisionDetector.minkowskiDiff(left, right),
-            hull = null,
-            tang = null;
+        var minkdiff = Geometry.minkowskiDifference(left.bounds(), right.bounds()),
+            hull = minkdiff.getConvexHull(),
+            mtd = +Infinity,
+            supportingPoint = null,
+            impact = null;
+        
+        for (var i = 0 ; i < hull.length ; i++) {
+            var supportingPoint = Geometry.supportingPoint(Vector.NIL, hull[i], hull[(i + 1) % hull.length]);
 
-        // test if origin is in the shape
-        if (minkdiff.contains(Vector.NIL)) {
-            // compute the MTV (minimum translational vector) between the minkdiff and the origin
-            hull = minkdiff.getConvexHull().slice();
-
-            hull.sort(function (a, b) {
-                return a.length() - b.length();
-            });
-
-            tang = hull[0].sub(hull[1])
-                .norm()
-                .tangent();
-
+            if (Math.abs(supportingPoint.length()) < mtd) {
+                impact = supportingPoint;
+                mtd = Math.abs(supportingPoint.length());
+            }
+        }
+        
+        if (mtd > 0) {
             return new Collision(
                 left,
                 right,
                 null,
-                tang,
-                Math.abs(tang.dot(hull[0]))
+                impact.norm(),
+                impact.length()
             );
         }
 
         return null;
-    };
-
-    /**
-     * @param {BoxActor} left
-     * @param {BoxActor} right
-     * @returns {ConvexPolygon}
-     */
-    CollisionDetector.minkowskiDiff = function (left, right) {
-        if (!(left instanceof BoxActor) && !(right instanceof BoxActor)) {
-            throw new TypeError('Parameters must be instances of BoxActor');
-        }
-
-        var minksum = new ConvexPolygon(),
-            leftBounds = left.bounds(),
-            rightBounds = right.bounds();
-
-        for (var a in leftBounds) {
-            for (var b in rightBounds) {
-                minksum.addPoint(leftBounds[a].sub(rightBounds[b]));
-            }
-        }
-
-        return minksum;
     };
 
     return CollisionDetector;

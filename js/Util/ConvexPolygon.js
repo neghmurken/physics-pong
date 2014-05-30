@@ -20,6 +20,7 @@ var ConvexPolygon = (function (_super) {
         var self = this;
 
         this.points = [];
+        this._hull = null;
 
         points.forEach(function (point) {
             self.addPoint(point);
@@ -33,51 +34,16 @@ var ConvexPolygon = (function (_super) {
     ConvexPolygon.prototype.addPoint = function (point) {
         this.points.push(point instanceof Vector ? point : new Vector(point[0], point[1]));
     };
-
+    
     /**
-     * @returns {Array}
+     * @returns {Array
      */
     ConvexPolygon.prototype.getConvexHull = function () {
-        var origin = null,
-            points = this.points.slice(),
-            point = null,
-            stack = [];
-
-        // get bottom-right point
-        points.forEach(function (point) {
-            if (!origin || origin.y > point.y || origin.y === point.y && origin.x <= point.x) {
-                origin = point;
-            }
-        });
-
-        points.splice(points.indexOf(origin), 1);
-
-        // sort points
-        points.sort(function (a, b) {
-            return ConvexPolygon.orthoDistanceToLine(a, origin, b);
-        });
-
-        // apply algorithms with stack
-        // we first init the stack with the first two points
-        stack.push(origin);
-        stack.push(points.shift());
-
-        while (points.length !== 0) {
-            point = points.shift();
-
-            while (stack.length > 2) {
-                if (ConvexPolygon.orthoDistanceToLine(point, stack[stack.length - 2], stack[stack.length - 1]) > 0) {
-                    break;
-                }
-
-                stack.pop();
-            }
-
-            stack.push(point);
+        if (this._hull === null) {
+            this._hull = Geometry.convexHull(this.points.slice());
         }
-
-        // return the stack
-        return stack;
+        
+        return this._hull.slice();
     };
 
     /**
@@ -105,23 +71,12 @@ var ConvexPolygon = (function (_super) {
         var hull = this.getConvexHull();
 
         for (var i = 0; i < hull.length; i++) {
-            if (ConvexPolygon.orthoDistanceToLine(point, hull[i], hull[(i + 1) % hull.length]) < 0) {
+            if (Geometry.distanceToLine(point, hull[i], hull[(i + 1) % hull.length]) < 0) {
                 return false;
             }
         }
 
         return true;
-    };
-
-    /**
-     * @param {Vector} point
-     * @param {Vector} lineStart
-     * @param {Vector} lineEnd
-     * @returns {Boolean}
-     */
-    ConvexPolygon.orthoDistanceToLine = function (point, lineStart, lineEnd) {
-        return (lineEnd.x - lineStart.x) * (point.y - lineStart.y) -
-            (lineEnd.y - lineStart.y) * (point.x - lineStart.x);
     };
 
     return ConvexPolygon;
