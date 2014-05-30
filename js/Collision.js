@@ -21,9 +21,9 @@ var Collision = (function (_super) {
         this.impact = impact;
         this.normal = normal;
         this.penetration = penetration;
-        
-        this.initiatorFactor = this.initiator.velocity.length() / this.initiator.mass;
-        this.targetFactor = this.target.velocity.length() / this.target.mass;
+
+        this.initiatorFactor = Math.max(1, this.initiator.velocity.length() / this.initiator.mass);
+        this.targetFactor = Math.max(1, this.target.velocity.length() / this.target.mass);
     }
 
     /**
