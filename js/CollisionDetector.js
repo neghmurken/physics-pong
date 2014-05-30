@@ -23,7 +23,7 @@ var CollisionDetector = (function (_super) {
     CollisionDetector.prototype.get = function (left, right) {
         var id = this.getCollisionId(left, right),
             collision = null;
-        
+
         if (left.options.immobile && right.options.immobile) {
             return null;
         }
@@ -35,7 +35,7 @@ var CollisionDetector = (function (_super) {
         if (!left.aabb.intersect(right.aabb)) {
             return null;
         }
-        
+
         switch (left.type + '-' + right.type) {
             case 'point-ball':
                 collision = this.computePointBallCollision(left, right);
@@ -112,29 +112,29 @@ var CollisionDetector = (function (_super) {
      * @param {BoxActor} right
      * @returns {Collision}
      */
-    CollisionDetector.prototype.computePointBoxCollision = function (left, right) {
-        //        var transposed = left.center.rotate(right.theta.inverse(), right.center).sub(right.center),
-        //            closest = new Vector(
-        //                Math.max(-right.dimension.x / 2, Math.min(right.dimension.x / 2, transposed.x)),
-        //                Math.max(-right.dimension.y / 2, Math.min(right.dimension.y / 2, transposed.y))
-        //            ),
-        //            distance = transposed.sub(closest);
-        //
-        //        if (distance.length() <= 0) {
-        //            var penetration = -distance.length(),
-        //                norm = distance.norm();
-        //            
-        //            return new Collision(
-        //                left,
-        //                right,
-        //                closest.sub(norm.scale(penetration / 2)).add(right.center).rotate(right.theta, right.center),
-        //                norm.rotate(right.theta),
-        //                penetration
-        //            );
-        //        }
-        //
-        //        return null;
-    },
+        CollisionDetector.prototype.computePointBoxCollision = function (left, right) {
+            //        var transposed = left.center.rotate(right.theta.inverse(), right.center).sub(right.center),
+            //            closest = new Vector(
+            //                Math.max(-right.dimension.x / 2, Math.min(right.dimension.x / 2, transposed.x)),
+            //                Math.max(-right.dimension.y / 2, Math.min(right.dimension.y / 2, transposed.y))
+            //            ),
+            //            distance = transposed.sub(closest);
+            //
+            //        if (distance.length() <= 0) {
+            //            var penetration = -distance.length(),
+            //                norm = distance.norm();
+            //
+            //            return new Collision(
+            //                left,
+            //                right,
+            //                closest.sub(norm.scale(penetration / 2)).add(right.center).rotate(right.theta, right.center),
+            //                norm.rotate(right.theta),
+            //                penetration
+            //            );
+            //        }
+            //
+            //        return null;
+        },
 
     /**
      *
@@ -142,29 +142,29 @@ var CollisionDetector = (function (_super) {
      * @param {BallActor} right
      * @returns {Collision}
      */
-    CollisionDetector.prototype.computeBallBallCollision = function (left, right) {
-        var distance = right.center.sub(left.center);
+        CollisionDetector.prototype.computeBallBallCollision = function (left, right) {
+            var distance = right.center.sub(left.center);
 
-        if (distance.length() <= left.radius + right.radius) {
-            var penetration = left.radius + right.radius - distance.length(),
-                norm = distance.norm();
+            if (distance.length() <= left.radius + right.radius) {
+                var penetration = left.radius + right.radius - distance.length(),
+                    norm = distance.norm();
 
-            return new Collision(
-                left,
-                right,
-                norm.scale(left.radius - penetration / 2).add(left.center),
-                norm,
-                penetration
-            );
-        }
+                return new Collision(
+                    left,
+                    right,
+                    norm.scale(left.radius - penetration / 2).add(left.center),
+                    norm,
+                    penetration
+                );
+            }
 
-        return null;
-    };
+            return null;
+        };
 
     /**
      *
-     * @params {BallActor} left
-     * @params {BoxActor} right
+     * @param {BallActor} left
+     * @param {BoxActor} right
      * @returns {Collision}
      */
     CollisionDetector.prototype.computeBallBoxCollision = function (left, right) {
@@ -201,25 +201,23 @@ var CollisionDetector = (function (_super) {
         var minkdiff = Geometry.minkowskiDifference(left.bounds(), right.bounds()),
             hull = minkdiff.getConvexHull(),
             mtd = +Infinity, // Minimum Translational Distance
-            //edge = [],
             current = null,
             supportingPoint = null;
 
-        for (var i = 0 ; i < hull.length ; i++) {
-            var current = Geometry.supportingPoint(Vector.NIL, hull[i], hull[(i + 1) % hull.length]);
+        if (minkdiff.contains(Vector.NIL)) {
+            for (var i = 0; i < hull.length; i++) {
+                current = Geometry.supportingPoint(Vector.NIL, hull[i], hull[(i + 1) % hull.length]);
 
-            if (current.length() < mtd) {
-                supportingPoint = current;
-                //edge = [hull[i], hull[(i + 1) % hull.length]];
-                mtd = current.length();
+                if (current.length() < mtd) {
+                    supportingPoint = current;
+                    mtd = current.length();
+                }
             }
-        }
 
-        if (mtd > 0) {
             return new Collision(
                 left,
                 right,
-                null,
+                supportingPoint,
                 supportingPoint.norm(),
                 supportingPoint.length()
             );
