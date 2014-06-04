@@ -5,9 +5,10 @@ var BallActor = (function (_super) {
 
     function BallActor(x, y, r, m, options) {
         this.radius = r;
-        
+        this.radiusVector = Vector.create(r, r);
+
         BallActor.parent.constructor.call(this, x, y, m, options);
-        
+
         this.type = 'ball';
     }
 
@@ -17,7 +18,7 @@ var BallActor = (function (_super) {
      */
     BallActor.prototype.scale = function (factor) {
         this.radius *= factor.length();
-        
+
         BallActor.parent.scale.call(this, factor);
     };
 
@@ -25,16 +26,16 @@ var BallActor = (function (_super) {
      *
      */
     BallActor.prototype.computeAabb = function () {
-        var radiusVector = new Vector(this.radius, this.radius),
-            sw = this.center.sub(radiusVector),
-            ne = this.center.add(radiusVector);
-
-        if (this.aabb instanceof AABB) {
-            this.aabb.update(sw, ne);
-        } else {
-            this.aabb = new AABB(sw, ne);
+        if (!(this.aabb instanceof AABB)) {
+            this.aabb = new AABB(
+                Vector.create(),
+                Vector.create()
+            );
         }
+
+        this.center.sub(this.radiusVector, this.aabb.sw);
+        this.center.add(this.radiusVector, this.aabb.ne);
     };
-    
+
     return BallActor;
 })(PointActor);

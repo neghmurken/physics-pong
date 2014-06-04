@@ -4,8 +4,8 @@ var PointActor = (function (_super) {
     extend(PointActor, _super);
     
     function PointActor(x, y, m, options) {
-        this.center = new Vector(x, y);
-        this.velocity = Vector.NIL;
+        this.center = Vector.create(x, y);
+        this.velocity = Vector.create();
         this.aabb = null;
 
         this.theta = Angle.EAST;
@@ -34,7 +34,10 @@ var PointActor = (function (_super) {
      * @returns {Vector}
      */
     PointActor.prototype.getMomentum = function () {
-        return this.velocity.scale(this.mass);
+        var momentum = Vector.create();
+        this.velocity.scale(this.mass, momentum);
+
+        return momentum;
     };
     
     /**
@@ -52,7 +55,7 @@ var PointActor = (function (_super) {
      */
     PointActor.prototype.rotate = function (angle, origin) {
         if (typeof origin !== 'undefined') {
-            this.center = this.center.rotate(angle, origin);
+            this.center.rotate(angle, origin, this.center);
         }
 
         this.theta = this.theta.add(angle);
@@ -65,7 +68,7 @@ var PointActor = (function (_super) {
      * @param {Vector} translation
      */
     PointActor.prototype.translate = function (translation) {
-        this.center = this.center.add(translation);
+        this.center.add(translation, this.center);
         
         this.computeAabb();
     };
@@ -81,11 +84,15 @@ var PointActor = (function (_super) {
      *
      */
     PointActor.prototype.computeAabb = function () {
-        if (this.aabb instanceof AABB) {
-            this.aabb.update(this.center, this.center);
-        } else {
-            this.aabb = new AABB(this.center, this.center);
+        if (!(this.aabb instanceof AABB)) {
+            this.aabb = new AABB(
+                Vector.create(), 
+                Vector.create()
+            );
         }
+        
+        this.aabb.sw.set(this.center);
+        this.aabb.ne.set(this.center);
     };
     
     return PointActor;

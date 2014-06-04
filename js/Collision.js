@@ -52,18 +52,23 @@ var Collision = (function (_super) {
      * @returns {Vector}
      */
     Collision.prototype.getInitiatorErrorCorrection = function () {
-        return this.normal.inverse().scale(
-            this.penetration * this.getInitiatorWeight() + Collision.EPSILON
-        );
+        var errorCorrection = Vector.create();
+        
+        this.normal.inverse(errorCorrection);
+        errorCorrection.scale(this.penetration * this.getInitiatorWeight() + Collision.EPSILON, errorCorrection);
+        
+        return errorCorrection;
     };
 
     /**
      * @returns {Vector}
      */
     Collision.prototype.getTargetErrorCorrection = function () {
-        return this.normal.scale(
-            this.penetration * this.getTargetWeight() + Collision.EPSILON
-        );
+        var errorCorrection = Vector.create();
+        
+        this.normal.scale(this.penetration * this.getTargetWeight() + Collision.EPSILON, errorCorrection);
+        
+        return errorCorrection;
     };
 
     return Collision;

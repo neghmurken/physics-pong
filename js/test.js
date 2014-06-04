@@ -14,11 +14,11 @@ function printPolygon(points) {
     var cur, next, count = points.length;
 
     ctx.beginPath();
-    ctx.moveTo(points[0].x, canvas.height - points[0].y);
+    ctx.moveTo(points[0].xy[0], canvas.height - points[0].xy[1]);
 
     for (cur in points) {
         next = (Number(cur) + 1) % count;
-        ctx.lineTo(points[next].x, canvas.height - points[next].y);
+        ctx.lineTo(points[next].xy[0], canvas.height - points[next].xy[1]);
     }
     
     ctx.closePath();
@@ -34,7 +34,7 @@ function printActor(actor) {
     switch (actor.type) {
         case 'point':
             ctx.beginPath();
-            ctx.arc(actor.center.x, canvas.height - actor.center.y, 1, 0, 2 * Math.PI, false);
+            ctx.arc(actor.center.xy[0], canvas.height - actor.center.xy[1], 1, 0, 2 * Math.PI, false);
             ctx.closePath();
             ctx.stroke();
             break;
@@ -54,7 +54,7 @@ function printActor(actor) {
 
         case 'ball':
             ctx.beginPath();
-            ctx.arc(actor.center.x, canvas.height - actor.center.y, actor.radius, 0, 2 * Math.PI, false);
+            ctx.arc(actor.center.xy[0], canvas.height - actor.center.xy[1], actor.radius, 0, 2 * Math.PI, false);
             ctx.closePath();
             ctx.stroke();
             
@@ -113,49 +113,29 @@ var physics = new Physics(canvas.width, canvas.height, {
     actors = [],
 	frameId = null,
     collisionCount = 0,
-    mouseCenter = Vector.NIL;
+    mouseCenter = Vector.create();
 
 //actors[0] = physics.createBall(6371000, 2.97e26, canvas.width * 0.5, canvas.height * 0.5 - 6371000);
 //actors[0].earth = true;
 
-//var w = 560;
-//actors[0] = physics.createBox(w, 10, 1, canvas.width * 0.5, canvas.height * 0.9, {immobile: true});
-//actors[1] = physics.createBox(w, 10, 1, canvas.width * 0.5, canvas.height * 0.1, {immobile: true});
-//actors[2] = physics.createBox(10, w, 1, canvas.width * 0.1, canvas.height * 0.5, {immobile: true});
-//actors[3] = physics.createBox(10, w, 1, canvas.width * 0.9, canvas.height * 0.5, {immobile: true});
+var w = 560;
+actors[0] = physics.createBox(w, 10, 1, canvas.width * 0.5, canvas.height * 0.9, {immobile: true});
+actors[1] = physics.createBox(w, 10, 1, canvas.width * 0.5, canvas.height * 0.1, {immobile: true});
+actors[2] = physics.createBox(10, w, 1, canvas.width * 0.1, canvas.height * 0.5, {immobile: true});
+actors[3] = physics.createBox(10, w, 1, canvas.width * 0.9, canvas.height * 0.5, {immobile: true});
 
-actors[0] = physics.createBox(
-    Math.random() * 50 + 20, 
-    Math.random() * 50 + 20, 
-    1, 
-    canvas.width * 0.5,
-    canvas.height * 0.2
-);
-actors[0].rotate(new Angle(Math.PI * 2 * Math.random()));
-
-actors[1] = physics.createBox(
-    Math.random() * 50 + 20, 
-    Math.random() * 50 + 20, 
-    1, 
-    canvas.width * 0.5,
-    canvas.height * 0.8
-);
-actors[1].rotate(new Angle(Math.PI * 2 * Math.random()));
-
-//var l = 2;
-//for (var i = 0 ; i < l ; i++) {
-//    for (var j = 0 ; j < l ; j++) {
-//        actors[i * l + j + 4] = physics.createBox(
-//            Math.random() * 30 + 20,
-//            Math.random() * 30 + 20,
-//            1,
-//            canvas.width * 0.2 + (canvas.width * 0.8 - canvas.width * 0.2) * i / (l - 1),
-//            canvas.height * 0.2 + (canvas.height * 0.8 - canvas.height * 0.2) * j / (l - 1)
-//        );
-//        actors[i * l + j + 4].rotate(new Angle(Math.PI * 2 * Math.random()));
-//        actors[i * l + j + 4].velocity = new Vector(Math.random() * 200 - 100, Math.random() * 200 - 100);
-//    }
-//}
+var l = 2;
+for (var i = 0 ; i < l ; i++) {
+    for (var j = 0 ; j < l ; j++) {
+        actors[i * l + j + 4] = physics.createBall(
+            Math.random() * 30 + 20,
+            1,
+            canvas.width * 0.2 + (canvas.width * 0.8 - canvas.width * 0.2) * i / (l - 1),
+            canvas.height * 0.2 + (canvas.height * 0.8 - canvas.height * 0.2) * j / (l - 1)
+        );
+        actors[i * l + j + 4].velocity = Vector.create(Math.random() * 200 - 100, Math.random() * 200 - 100);
+    }
+}
 
 canvas.addEventListener('mousemove', function (e) {
     mouseCenter = new Vector(e.clientX, canvas.height - e.clientY);
@@ -174,14 +154,21 @@ window.oncollision = function (coll) {
     if (coll.impact) {
         ctx.strokeStyle = '#f44646';
         ctx.beginPath();
-        var iv = coll.normal.scale(20).add(coll.impact),
-            tg = coll.normal.tangent().scale(20).add(coll.impact);
+        var iv = Vector.create(),
+            tg = Vector.create();
+        
+        coll.normal.scale(20, iv);
+        iv.add(coll.impact, iv);
+        
+        coll.normal.tangent(tg);
+        tg.scale(20, tg);
+        tg.add(coll.impact, tg);
 
-        ctx.moveTo(coll.impact.x, canvas.height - coll.impact.y);
-        ctx.lineTo(iv.x, canvas.height - iv.y);
+        ctx.moveTo(coll.impact.xy[0], canvas.height - coll.impact.xy[1]);
+        ctx.lineTo(iv.xy[0], canvas.height - iv.xy[1]);
 
-        ctx.moveTo(coll.impact.x, canvas.height - coll.impact.y);
-        ctx.lineTo(tg.x, canvas.height - tg.y);
+        ctx.moveTo(coll.impact.xy[0], canvas.height - coll.impact.xy[1]);
+        ctx.lineTo(tg.xy[0], canvas.height - tg.xy[1]);
 
         ctx.closePath();
         ctx.stroke();
@@ -200,37 +187,11 @@ var paint = function () {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     frameId = window.requestAnimationFrame(paint);
 
-//    physics.update();
+    physics.update();
 
     for (var i in actors) {
         printActor(actors[i]);
     }
-    
-    ctx.beginPath();
-    ctx.arc(canvas.width * 0.5, canvas.height * 0.5, 2, 0, Math.PI * 2);
-    ctx.closePath();
-    ctx.stroke();
-    
-    var middle = new Vector(canvas.width * 0.5, canvas.height * 0.5);
-    
-    printPolygon(Geometry.minkowskiDifference(actors[0].bounds(), actors[1].bounds()).getConvexHull().map(function (p) {
-        return p.add(middle);
-    }));
-
-    physics.collisionDetector.flush();
-
-    var col = physics.collisionDetector.get(actors[0], actors[1]);
-    if (col) {
-        ctx.beginPath();
-        ctx.moveTo(canvas.width * 0.5, canvas.height * 0.5);
-        var ds = col.normal.scale(20).add(middle);
-        ctx.lineTo(ds.x, ds.y);
-        ctx.closePath();
-        ctx.stroke();
-    }
-    
-    actors[1].center = mouseCenter;
-    actors[1].computeAabb();
     
     printKineticEnergy(actors);
     printCollisionCount(collisionCount);

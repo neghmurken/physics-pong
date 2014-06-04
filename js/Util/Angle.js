@@ -30,7 +30,11 @@ var Angle = (function (_super) {
      * @returns {Vector}
      */
     Angle.prototype.toVector = function (length) {
-        return (new Vector(length, 0)).rotate(this);
+        var vector = Vector(length, 0);
+        
+        vector.rotate(this, undefined, vector);
+        
+        return vector;
     };
     
     /**

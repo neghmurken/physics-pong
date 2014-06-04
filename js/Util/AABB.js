@@ -32,10 +32,10 @@ var AABB = (function (_super) {
             throw new TypeError('Provided parameter must be an AABB object.');
         }
 
-        return this.sw.x < other.ne.x &&
-            this.ne.x > other.sw.x &&
-            this.sw.y < other.ne.y &&
-            this.ne.y > other.sw.y;
+        return this.sw.xy[0] < other.ne.xy[0] &&
+            this.ne.xy[0] > other.sw.xy[0] &&
+            this.sw.xy[1] < other.ne.xy[1] &&
+            this.ne.xy[1] > other.sw.xy[1];
     };
     
     /**
@@ -45,9 +45,9 @@ var AABB = (function (_super) {
     AABB.prototype.bounds = function () {
         return [
             this.sw,
-            new Vector(this.ne.x, this.sw.x),
+            Vector.create(this.sw.xy[0], this.ne.xy[1]),
             this.ne,
-            new Vector(this.sw.x, this.ne.x)
+            Vector.create(this.ne.xy[0], this.sw.xy[1])
         ];
     };
 

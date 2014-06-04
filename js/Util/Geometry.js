@@ -7,7 +7,10 @@ var Geometry = (function () {
 
             for (var a in leftSet) {
                 for (var b in rightSet) {
-                    minksum.addPoint(leftSet[a].sub(rightSet[b]));
+                    minksum.addPoint([
+                        leftSet[a].xy[0] - rightSet[b].xy[0],
+                        leftSet[a].xy[1] - rightSet[b].xy[1]
+                    ]);
                 }
             }
 
@@ -25,7 +28,7 @@ var Geometry = (function () {
 
             // get bottom-right point
             points.forEach(function (point) {
-                if (!origin || origin.y > point.y || origin.y === point.y && origin.x <= point.x) {
+                if (!origin || origin.xy[1] > point.xy[1] || origin.xy[1] === point.xy[1] && origin.xy[0] <= point.xy[0]) {
                     origin = point;
                 }
             });
@@ -68,7 +71,8 @@ var Geometry = (function () {
          * @returns {Number}
          */
         distanceToLine: function (point, lineStart, lineEnd) {
-            return (lineEnd.x - lineStart.x) * (point.y - lineStart.y) - (lineEnd.y - lineStart.y) * (point.x - lineStart.x);
+            return (lineEnd.xy[0] - lineStart.xy[0]) * (point.xy[1] - lineStart.xy[1])
+                - (lineEnd.xy[1] - lineStart.xy[1]) * (point.xy[0] - lineStart.xy[0]);
         },
 
         /**
@@ -77,11 +81,25 @@ var Geometry = (function () {
          * @param {Vector} lineEnd
          */
         supportingPoint: function (point, lineStart, lineEnd) {
-            var segment = lineEnd.sub(lineStart);
-
-            return lineStart.add(segment.norm().scale(
-                Math.max(0, Math.min(segment.length(), segment.norm().dot(point.sub(lineStart))))
-            ));
+            var segment = Vector.create(),
+                segmentLength = 0,
+                output = Vector.create();
+            
+            lineEnd.sub(lineStart, segment);
+            
+            segmentLength = segment.length();
+            segment.norm(segment);
+            
+            point.sub(lineStart, output);
+            
+            segment.scale(
+                Math.max(0, Math.min(segmentLength, segment.dot(output))),
+                output
+            );
+            
+            output.add(lineStart, output);
+            
+            return output;
         }
     };
 })();

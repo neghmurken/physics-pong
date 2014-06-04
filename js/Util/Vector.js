@@ -4,20 +4,48 @@ var Vector = (function (_super) {
     extend(Vector, _super);
     
     function Vector(x, y) {
-        this.x = x;
-        this.y = y;
-        
+        this.xy = new Float32Array(2);
         this._length = null;
+        
+        this.set(x, y);
     }
 
-    Vector.NIL = new Vector(0, 0);
-
+    /**
+     * @param {Number} x
+     * @param {Number} y
+     * @returns {Vector}
+     */
+    Vector.create = function (x, y) {
+        return new Vector(x || 0, y || 0);
+    };
+    
     /**
      *
      * @returns {String}
      */
     Vector.prototype.toString = function () {
-        return '{' + this.x + ',' + this.y + '}';
+        return '{' + this.xy[0] + ',' + this.xy[1] + '}';
+    };
+    
+    /**
+     * @param {Number} x
+     * @param {Number} y
+     */
+    Vector.prototype.set = function (x, y) {
+        this.xy[0] = x;
+        this.xy[1] = y;
+        
+        this._length = null;
+    };
+    
+    /**
+     * @returns {Vector}
+     */
+    Vector.prototype.clone = function () {
+        var clone = Vector.create(this.xy[0], this.xy[1]);
+        clone._length = this._length;
+        
+        return clone;
     };
 
     /**
@@ -26,7 +54,7 @@ var Vector = (function (_super) {
      */
     Vector.prototype.length = function () {
         if (null === this._length) {
-            this._length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+            this._length = Math.sqrt(this.xy[0] * this.xy[0] + this.xy[1] * this.xy[1]);
         }
 
         return this._length;
@@ -36,22 +64,24 @@ var Vector = (function (_super) {
      *
      * @returns {Vector}
      */
-    Vector.prototype.norm = function () {
+    Vector.prototype.norm = function (out) {
         var length = this.length();
         
         if (length > 0) {
-            return this.scale(1 / length);
+            this.scale(1 / length, out);
+        } else {
+            out.xy[0] = 0;
+            out.xy[1] = 0;
         }
-        
-        return Vector.NIL;
     };
     
     /**
      *
      * @returns {Vector}
      */
-    Vector.prototype.tangent = function () {
-        return new Vector(this.y, -this.x);
+    Vector.prototype.tangent = function (out) {
+        out.xy[0] = -this.xy[1];
+        out.xy[1] = this.xy[0];
     };
     
     /**
@@ -59,24 +89,16 @@ var Vector = (function (_super) {
      * @returns {Angle}
      */
     Vector.prototype.angle = function () {
-        return new Angle(Math.atan2(this.y, this.x));
+        return new Angle(Math.atan2(this.xy[0], this.xy[1]));
     };
 
     /**
      *
      * @returns {Vector}
      */
-    Vector.prototype.inverse = function () {
-        return new Vector(-this.x, -this.y);
-    };
-
-    /**
-     *
-     * @param {Vector} vector
-     * @returns {Vector}
-     */
-    Vector.prototype.add = function (vector) {
-        return new Vector(this.x + vector.x, this.y + vector.y);
+    Vector.prototype.inverse = function (out) {
+        out.xy[0] = -this.xy[0];
+        out.xy[1] = -this.xy[1];
     };
 
     /**
@@ -84,8 +106,9 @@ var Vector = (function (_super) {
      * @param {Vector} vector
      * @returns {Vector}
      */
-    Vector.prototype.sub = function (vector) {
-        return new Vector(this.x - vector.x, this.y - vector.y);
+    Vector.prototype.add = function (vector, out) {
+        out.xy[0] = this.xy[0] + vector.xy[0];
+        out.xy[1] = this.xy[1] + vector.xy[1];
     };
 
     /**
@@ -93,8 +116,19 @@ var Vector = (function (_super) {
      * @param {Vector} vector
      * @returns {Vector}
      */
-    Vector.prototype.mul = function (vector) {
-        return new Vector(this.x * vector.x, this.y * vector.y);
+    Vector.prototype.sub = function (vector, out) {
+        out.xy[0] = this.xy[0] - vector.xy[0];
+        out.xy[1] = this.xy[1] - vector.xy[1];
+    };
+
+    /**
+     *
+     * @param {Vector} vector
+     * @returns {Vector}
+     */
+    Vector.prototype.mul = function (vector, out) {
+        out.xy[0] = this.xy[0] * vector.xy[0];
+        out.xy[1] = this.xy[1] * vector.xy[1];
     };
 
     /**
@@ -102,8 +136,9 @@ var Vector = (function (_super) {
      * @param {Number} factor Scale factor
      * @returns {Vector}
      */
-    Vector.prototype.scale = function (factor) {
-        return new Vector(this.x * factor, this.y * factor);
+    Vector.prototype.scale = function (factor, out) {
+        out.xy[0] = this.xy[0] * factor;
+        out.xy[1] = this.xy[1] * factor;
     };
 
     /**
@@ -112,7 +147,7 @@ var Vector = (function (_super) {
      * @returns {number}
      */
     Vector.prototype.dot = function (vector) {
-        return this.x * vector.x + this.y * vector.y;
+        return this.xy[0] * vector.xy[0] + this.xy[1] * vector.xy[1];
     };
 
     /**
@@ -121,44 +156,47 @@ var Vector = (function (_super) {
      * @param {Vector} origin
      * @returns {Vector}
      */
-    Vector.prototype.rotate = function (angle, origin) {
+    Vector.prototype.rotate = function (angle, origin, out) {
         if (typeof origin === 'undefined') {
-            origin = Vector.NIL;
+            origin = Vector.create();
         }
 
-        var x0 = this.x - origin.x;
-        var y0 = this.y - origin.y;
+        var x0 = this.xy[0] - origin.xy[0];
+        var y0 = this.xy[1] - origin.xy[1];
 
-        return new Vector(
-            origin.x + ((x0 * Math.cos(angle.t)) - (y0 * Math.sin(angle.t))),
-            origin.y + ((x0 * Math.sin(angle.t)) + (y0 * Math.cos(angle.t)))
-        );
+        out.xy[0] = origin.xy[0] + ((x0 * Math.cos(angle.t)) - (y0 * Math.sin(angle.t)));
+        out.xy[1] = origin.xy[1] + ((x0 * Math.sin(angle.t)) + (y0 * Math.cos(angle.t)));
     };
 
     /**
      *
      * @returns {Vector}
      */
-    Vector.prototype.mirrorX = function () {
-        return new Vector(-this.x, this.y);
+    Vector.prototype.mirrorX = function (out) {
+        out.xy[0] = -this.xy[0];
+        out.xy[1] = this.xy[1];
     };
 
     /**
      *
      * @returns {Vector}
      */
-    Vector.prototype.mirrorY = function () {
-        return new Vector(this.x, -this.y);
+    Vector.prototype.mirrorY = function (out) {
+        out.xy[0] = this.xy[0];
+        out.xy[1] = -this.xy[1];
     };
 
     /**
-     *
+     * TODO: inline
      * @param {Number} extension
      * @returns {Vector}
      */
-    Vector.prototype.extend = function (extension) {
-        return this.norm().scale(this.length() + extension);
+    Vector.prototype.extend = function (extension, out) {
+        this.norm(out);
+        this.scale(this.length() + extension, out);
     };
+    
+    Vector.NIL = Vector.create(0, 0);
     
     return Vector;
 })(Object);

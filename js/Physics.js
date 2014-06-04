@@ -78,16 +78,19 @@ var Physics = (function (_super) {
      * @returns {Array}
      */
     Physics.prototype.gatherForces = function (actor) {
-        var resultant = Vector.NIL, distance;
+        var resultant = Vector.create(), 
+            distance = Vector.create(), 
+            gravity = Vector.create();
 
         // gravitational forces
-
         if (this.options.gravitationalForces) {
             for (var i in this.actors) {
                 if (this.actors[i] !== actor) {
-                    distance = this.actors[i].center.sub(actor.center);
+                    this.actors[i].center.sub(actor.center, distance);
                     
-                    resultant = resultant.add(distance.norm().scale(Physics.G * (actor.mass * this.actors[i].mass) / Math.pow(distance.length(), 2)));
+                    distance.norm(gravity);
+                    gravity.scale(Physics.G * (actor.mass * this.actors[i].mass) / Math.pow(distance.length(), 2), gravity);
+                    resultant.add(gravity, resultant);
                 }
             }
         }
@@ -102,12 +105,18 @@ var Physics = (function (_super) {
      */
     Physics.prototype.updateActor = function (actor, dt) {
         if (!actor.options.immobile) {
-            var prevVel = actor.velocity;
+            var prevVel = actor.velocity.clone(),
+                deltaVel = Vector.create(),
+                deltaPos = Vector.create();
+                
+            this.gatherForces(actor).scale(1 / actor.mass * dt, deltaVel);
+            actor.velocity.add(prevVel, deltaPos);
+            deltaPos.scale(1 / 2 * dt, deltaPos);
 
-            actor.velocity = actor.velocity.add(this.gatherForces(actor).scale(1 / actor.mass).scale(dt));
-            actor.translate(actor.velocity.add(prevVel).scale(1 / 2).scale(dt));
+            actor.velocity.add(deltaVel, actor.velocity);
+            actor.translate(deltaPos);
         } else {
-            actor.velocity = Vector.NIL;
+            actor.velocity.set(0, 0);
         }
     };
 
@@ -133,7 +142,7 @@ var Physics = (function (_super) {
             return;
         }
 
-        var tg = collision.normal.tangent(),
+        var tg = Vector.create(),
             cn = collision.normal,
             // mass of left actor
             m1 = left.options.immobile ? 1e99 : left.mass,
@@ -146,25 +155,28 @@ var Physics = (function (_super) {
             // tangential coefficient of restitution depending on both actors friction
             tcr = 1 - Math.max(left.options.friction, right.options.friction),
             // normal velocity of left actor
-            v1 = left.velocity.dot(cn),
+            vn1 = left.velocity.dot(cn),
             // normal velocity of right actor
-            v2 = right.velocity.dot(cn);
+            vn2 = right.velocity.dot(cn),
+            vn1p = Vector.create(),
+            vn2p = Vector.create();
+        
+        collision.normal.tangent(tg);
     
-        // error correction
-        // TODO: translate objects along the velocity normal not the collision normal
-
         if (!left.options.immobile) {
             left.translate(collision.getInitiatorErrorCorrection());
-            left.velocity = tg
-                .scale(left.velocity.dot(tg) * tcr)
-                .add(cn.scale((ncr * v1 * (m1 - m2) + 2 * m2 * v2) / masses));
+            
+            cn.scale((ncr * vn1 * (m1 - m2) + 2 * m2 * vn2) / masses, vn1p);
+            tg.scale(left.velocity.dot(tg) * tcr, left.velocity);
+            left.velocity.add(vn1p, left.velocity);
         }
 
         if (!right.options.immobile) {
             right.translate(collision.getTargetErrorCorrection());
-            right.velocity = tg
-                .scale(right.velocity.dot(tg) * tcr)
-                .add(cn.scale((ncr * v2 * (m2 - m1) + 2 * m1 * v1) / masses));
+            
+            cn.scale((ncr * vn2 * (m2 - m1) + 2 * m1 * vn1) / masses, vn2p);
+            tg.scale(right.velocity.dot(tg) * tcr, right.velocity);
+            right.velocity.add(vn2p, right.velocity);
         }
 
         window.oncollision(collision);

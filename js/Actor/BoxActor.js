@@ -4,7 +4,17 @@ var BoxActor = (function (_super) {
     extend(BoxActor, _super);
 
     function BoxActor(x, y, w, h, m, options) {
-        this.dimension = new Vector(w, h);
+        this.dimension = Vector.create(w, h);
+        
+        this.diag = Vector.create();
+        this.dimension.scale(0.5, this.diag);
+        
+        this._bounds = [
+            Vector.create(),
+            Vector.create(),
+            Vector.create(),
+            Vector.create()
+        ];
         
         BoxActor.parent.constructor.call(this, x, y, m, options);
 
@@ -16,7 +26,7 @@ var BoxActor = (function (_super) {
      * @param {Vector} factor
      */
     BoxActor.prototype.scale = function (factor) {
-        this.dimension = this.dimension.mul(factor);
+        this.dimension.mul(factor, this.dimension);
         
         BoxActor.parent.scale.call(this, factor);
     };
@@ -26,37 +36,46 @@ var BoxActor = (function (_super) {
      * @returns {Array}
      */
     BoxActor.prototype.bounds = function () {
-        var diag = this
-            .dimension
-            .scale(0.5);
+        var diag = Vector.create();
+        
+        this.diag.inverse(diag);
+        this.center.add(diag, this._bounds[0]);
+        
+        this.diag.mirrorX(diag);
+        this.center.add(diag, this._bounds[1]);
+        
+        this.center.add(this.diag, this._bounds[2]);
+        
+        this.diag.mirrorY(diag);
+        this.center.add(diag, this._bounds[3]);
+        
+        for (var i in this._bounds) {
+            this._bounds[i].rotate(this.theta, this.center, this._bounds[i]);
+        }
 
-        return [
-            this.center.add(diag.inverse()).rotate(this.theta, this.center),
-            this.center.add(diag.mirrorY()).rotate(this.theta, this.center),
-            this.center.add(diag).rotate(this.theta, this.center),
-            this.center.add(diag.mirrorX()).rotate(this.theta, this.center)
-        ];
+        return this._bounds;
     };
-    
+
     /**
      *
      */
     BoxActor.prototype.computeAabb = function() {
-        var xs = [], ys = [], bounds = this.bounds(), sw, ne;
+        var xs = [], ys = [], bounds = this.bounds();
 
         for (var i in bounds) {
-            xs.push(bounds[i].x);
-            ys.push(bounds[i].y);
+            xs.push(bounds[i].xy[0]);
+            ys.push(bounds[i].xy[1]);
         }
-        
-        sw = new Vector(Math.min.apply(null, xs), Math.min.apply(null, ys));
-        ne = new Vector(Math.max.apply(null, xs), Math.max.apply(null, ys));
 
-        if (this.aabb instanceof AABB) {
-            this.aabb.update(sw, ne);
-        } else {
-            this.aabb = new AABB(sw, ne);
+        if (!(this.aabb instanceof AABB)) {
+            this.aabb = new AABB(
+                Vector.create(),
+                Vector.create()
+            );
         }
+
+        this.aabb.sw.set(Math.min.apply(null, xs), Math.min.apply(null, ys));
+        this.aabb.ne.set(Math.max.apply(null, xs), Math.max.apply(null, ys));
     };
 
     return BoxActor;

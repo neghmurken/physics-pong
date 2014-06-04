@@ -32,7 +32,7 @@ var ConvexPolygon = (function (_super) {
      * @param {Vector|Array} point
      */
     ConvexPolygon.prototype.addPoint = function (point) {
-        this.points.push(point instanceof Vector ? point : new Vector(point[0], point[1]));
+        this.points.push(point instanceof Vector ? point : Vector.create(point[0], point[1]));
     };
     
     /**
@@ -56,8 +56,8 @@ var ConvexPolygon = (function (_super) {
             length = hull.length;
 
         hull.forEach(function (point) {
-            x += point.x;
-            y += point.y;
+            x += point.xy[0];
+            y += point.xy[1];
         });
 
         return new Vector(x / length, y / length);
