@@ -124,12 +124,13 @@ actors[1] = physics.createBox(w, 10, 1, canvas.width * 0.5, canvas.height * 0.1,
 actors[2] = physics.createBox(10, w, 1, canvas.width * 0.1, canvas.height * 0.5, {immobile: true});
 actors[3] = physics.createBox(10, w, 1, canvas.width * 0.9, canvas.height * 0.5, {immobile: true});
 
-var l = 2;
+var l = 5, rnd = 0;
 for (var i = 0 ; i < l ; i++) {
     for (var j = 0 ; j < l ; j++) {
+        rnd = Math.random();
         actors[i * l + j + 4] = physics.createBall(
-            Math.random() * 30 + 20,
-            1,
+            rnd * 30 + 5,
+            rnd * 25 + 5,
             canvas.width * 0.2 + (canvas.width * 0.8 - canvas.width * 0.2) * i / (l - 1),
             canvas.height * 0.2 + (canvas.height * 0.8 - canvas.height * 0.2) * j / (l - 1)
         );

@@ -1,0 +1,21 @@
+{
+    "author": "neghmurken",
+    "name": "Physics-pong",
+    "version": "0.0.1",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/neghmurken/physics-pong.git"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "grunt": "~0.4.2",
+        "grunt-contrib-concat": "~0.3.0",
+        "grunt-contrib-uglify": "~0.3.2",
+        "grunt-contrib-watch": "~0.5.3",
+        "grunt-contrib-cssmin": "~0.9.0"
+    },
+    "optionalDependencies": {},
+    "engines": {
+        "node": "*"
+    }
+}
