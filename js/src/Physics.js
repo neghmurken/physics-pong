@@ -136,6 +136,10 @@ var Physics = (function (_super) {
      * @param {PointActor} right
      */
     Physics.prototype.checkForCollision = function (left, right) {
+        if (left.options.ghost || right.options.ghost) {
+            return;
+        }
+        
         var collision = this.collisionDetector.get(left, right);
 
         if (null === collision) {

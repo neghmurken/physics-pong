@@ -20,6 +20,7 @@ var PointActor = (function (_super) {
 
         this.options = merge({
             immobile: false,
+            ghost: false,
             elasticity: 1,
             friction: 0
         }, options || {});
