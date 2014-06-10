@@ -46,7 +46,7 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('default', ['dist', 'watch']);
+    grunt.registerTask('default', ['dist']);
     grunt.registerTask('dist', ['scripts:dist', 'styles:dist']);
 
     grunt.registerTask('scripts:dist', ['uglify:compile']);
