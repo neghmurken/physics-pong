@@ -107,14 +107,17 @@ var Physics = (function (_super) {
         if (!actor.options.immobile) {
             var prevVel = actor.velocity.clone(),
                 deltaVel = Vector.create(),
-                deltaPos = Vector.create();
+                deltaPos = Vector.create(),
+                resultant = this.gatherForces(actor);
                 
-            this.gatherForces(actor).scale(1 / actor.mass * dt, deltaVel);
+            resultant.scale(1 / actor.mass * dt, deltaVel);
             actor.velocity.add(prevVel, deltaPos);
             deltaPos.scale(1 / 2 * dt, deltaPos);
 
             actor.velocity.add(deltaVel, actor.velocity);
             actor.translate(deltaPos);
+            
+            actor.rotate(actor.omega);
         } else {
             actor.velocity.set(0, 0);
         }

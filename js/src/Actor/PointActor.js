@@ -9,6 +9,7 @@ var PointActor = (function (_super) {
         this.aabb = null;
 
         this.theta = Angle.EAST;
+        this.omega = Angle.EAST;
 
         if (typeof m === 'undefined') {
             m = 1;
