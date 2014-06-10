@@ -8,6 +8,8 @@ var BallActor = (function (_super) {
         this.radiusVector = Vector.create(r, r);
 
         BallActor.parent.constructor.call(this, x, y, m, options);
+        
+        this.inertia = 2 / 5 * m * r * r;
 
         this.type = 'ball';
     }

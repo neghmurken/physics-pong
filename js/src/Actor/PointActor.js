@@ -16,6 +16,8 @@ var PointActor = (function (_super) {
         }
 
         this.mass = m;
+        this.inertia = 0;
+        
         this.type = 'point';
         this.id = ++PointActor.count;
 

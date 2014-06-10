@@ -17,7 +17,9 @@ var BoxActor = (function (_super) {
         ];
         
         BoxActor.parent.constructor.call(this, x, y, m, options);
-
+        
+        this.inertia = m / 12 * (w * w + h * h);
+        
         this.type = 'box';
     }
 
