@@ -65,6 +65,15 @@ var Angle = (function (_super) {
     
     /**
      *
+     * @param {Number} factor
+     * @param {Angle}
+     */
+    Angle.prototype.scale = function (factor) {
+        return new Angle(this.t * factor);
+    };
+    
+    /**
+     *
      * @returns {Angle}
      */
     Angle.prototype.inverse = function () {

@@ -117,7 +117,7 @@ var Physics = (function (_super) {
             actor.velocity.add(deltaVel, actor.velocity);
             actor.translate(deltaPos);
             
-            actor.rotate(actor.omega);
+            actor.rotate(actor.omega.scale(dt));
         } else {
             actor.velocity.set(0, 0);
         }
